@@ -1,0 +1,27 @@
+% Figure 4: two corners of one frame, their three vanishing points, and the
+% orthocentre.  Column width.
+\begin{tikzpicture}[scale=1.02,font=\footnotesize]
+  \coordinate (v1) at (-3.3,-0.55);
+  \coordinate (v2) at (3.5,-0.85);
+  \coordinate (v3) at (0.45,3.55);
+  \coordinate (f1) at ($(v2)!(v1)!(v3)$);
+  \coordinate (f2) at ($(v1)!(v2)!(v3)$);
+  \coordinate (f3) at ($(v1)!(v3)!(v2)$);
+  \coordinate (H) at (intersection of v1--f1 and v2--f2);
+  \coordinate (ca) at (-0.75,0.35);
+  \coordinate (cb) at (1.15,0.95);
+  % altitudes
+  \draw[densely dotted] (v1) -- (f1) (v2) -- (f2) (v3) -- (f3);
+  % the lines of each direction meet at its vanishing point
+  \foreach \c in {ca,cb} \foreach \v in {v1,v2,v3} \draw[black!45] (\c) -- (\v);
+  % the two junctions
+  \foreach \c in {ca,cb} {
+    \foreach \v in {v1,v2,v3} \draw[very thick] (\c) -- ($(\c)!0.55cm!(\v)$);
+    \fill (\c) circle (1.5pt); }
+  \fill (v1) circle (1.6pt) (v2) circle (1.6pt) (v3) circle (1.6pt);
+  \draw[fill=white] (H) circle (1.7pt);
+  \node[below=1pt] at (v1) {$\vv_1$};
+  \node[below=1pt] at (v2) {$\vv_2$};
+  \node[above=1pt] at (v3) {$\vv_3$};
+  \node[below=2pt] at (H) {$\mathbf x_0$};
+\end{tikzpicture}

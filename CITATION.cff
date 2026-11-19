@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the accompanying paper."
+title: "What Right-Angle Corners Reveal About an Uncalibrated Camera: Convex Cones, Certified Bounds and Identifiability"
+authors:
+  - family-names: Werman
+    given-names: Michael
+    affiliation: "School of Computer Science and Engineering, The Hebrew University of Jerusalem"
+    email: michael.werman@mail.huji.ac.il
+version: "1.0.0"
+date-released: "2026-11-16"
+license: MIT
+# Once the paper is accepted, fill in and uncomment:
+# preferred-citation:
+#   type: article
+#   title: "What Right-Angle Corners Reveal About an Uncalibrated Camera: Convex Cones, Certified Bounds and Identifiability"
+#   authors:
+#     - family-names: Werman
+#       given-names: Michael
+#   journal: "<journal name>"
+#   year: <year>
+#   volume: <volume>
+#   issue: <issue>
+#   start: <first page>
+#   end: <last page>
+#   doi: "<DOI>"

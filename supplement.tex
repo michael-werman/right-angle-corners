@@ -1,0 +1,922 @@
+% What Right-Angle Corners Reveal About an Uncalibrated Camera -- Overleaf source.
+% Compile with pdfLaTeX + BibTeX (Overleaf default). To move to a conference
+% template (3DV, BMVC, WACV), keep everything between \begin{document} and
+% \end{document}, swap the preamble, and keep the macros block below.
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xr}
+\usepackage{url}
+\providecommand{\texorpdfstring}[2]{#1}
+\usepackage[capitalise,noabbrev]{cleveref}
+
+% ---------------------------------------------------------------- macros
+\newcommand{\vd}{\mathbf{d}}
+\newcommand{\vr}{\mathbf{r}}
+\newcommand{\vt}{\mathbf{t}}
+\newcommand{\vn}{\mathbf{n}}
+\newcommand{\vl}{\mathbf{l}}
+\newcommand{\vc}{\mathbf{c}}
+\newcommand{\vw}{\mathbf{w}}
+\newcommand{\vg}{\mathbf{g}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\fmin}{f_{\min}}
+\newcommand{\vh}{\mathbf{h}}
+\newcommand{\vm}{\mathbf{m}}
+\newcommand{\OR}{Online Resource~1}
+\newcommand{\TODO}[1]{\textcolor{red}{[TODO: #1]}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\externaldocument[M-]{main}
+\title{Online Resource 1\\[4pt] \large Supplementary material for\\[2pt] \Large What Right-Angle Corners Reveal About an Uncalibrated Camera: Convex Cones, Certified Bounds and Identifiability}
+\author{Michael Werman\\ \small School of Computer Science and Engineering, The Hebrew University of Jerusalem, Jerusalem, Israel\\ \small\texttt{michael.werman@mail.huji.ac.il}\\[2pt] \small Journal of Mathematical Imaging and Vision}
+\date{}
+
+\begin{document}
+\maketitle
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\theequation}{S\arabic{equation}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thetheorem}{S\arabic{theorem}}
+
+\noindent This resource collects material that supports the article but is not needed to follow it, in three parts. Part~I gives further theory: the constraint from a corner and a parallel line (Sect.~S1); mirror resolution from two corners, counts and classical restatements for two corners, and what opacity adds (Sects.~S2--S4); further results on several frames (Sect.~S5); model error, for corners that are not right-angled and for lens distortion (Sect.~S6); the first-order noise analysis and the rules that combine bounds under noise (Sects.~S7 and S8); and junctions placed at random (Sect.~S9). Part~II reports the computations and experiments: the simulation protocol and the checks of the noise model (Sect.~S10); numerical checks of the proved results and worked examples of the convex program (Sect.~S11); the experiments on real images, with the limitations of the evaluation (Sect.~S12); and further experiments (Sect.~S13). Part~III lists directions for further work (Sect.~S14). Sections, equations, figures, tables and propositions of this resource carry the prefix S; references without it are to the article.
+
+\part{Further theory}
+
+\section{A corner and a parallel line}\label{sec:solver}
+
+A single additional image line, the image of a scene line parallel to one edge of the corner, determines $f$ up to a twofold ambiguity, as derived below. The resulting constraint is classical; \cref{M-prop:general} shows how it arises.
+
+\begin{proposition}[A corner and a parallel line]\label{prop:quadsolver}
+Let a right-angle corner with image lines $\vl_1,\vl_2,\vl_3$, and one more image line $\vl_3'$ of a scene line parallel to the edge $\vd_3$, be seen by a camera, and let $\vv_3=\vl_3\times\vl_3'$. For any candidate camera $K$, with $\omega^{*}=KK^{\top}$ and $\omega=(\omega^{*})^{-1}$, the two sides of
+\begin{equation}
+\bigl(\vl_1^{\top}\omega^{*}\vl_2\bigr)\bigl(\vv_3^{\top}\omega\,\vv_3\bigr)=(\vl_1\cdot\vv_3)(\vl_2\cdot\vv_3),
+\label{eq:cfsolver}
+\end{equation}
+differ by $\det(K)^2\,\vv_1^{\top}\omega\vv_2$, where $\vv_i=\vl_i\times\omega\vv_3$ is the point in which edge $i$ meets the polar of $\vv_3$. Hence \eqref{eq:cfsolver} holds exactly when the candidate camera makes $\vv_1$ and $\vv_2$ orthogonal, as the true camera does. For $K=\operatorname{diag}(f,f,1)$ the condition, multiplied by $f^2$, is a quadratic in $f^2$, so there are at most two solutions unless it vanishes identically.
+\end{proposition}
+\begin{proof}
+The lines $\vl_3$ and $\vl_3'$ are images of parallel scene lines, so they meet at the vanishing point $\vv_3$ of $\vd_3$. Its polar $\vh=\omega\vv_3$ is the vanishing line of the planes perpendicular to $\vd_3$, and the edges $\vd_1$ and $\vd_2$ lie in such a plane, so their vanishing points are $\vv_i=\vl_i\times\vh$, and the two edges are orthogonal exactly when $\vv_1^{\top}\omega\vv_2=0$. For a symmetric invertible matrix,
+\[
+\begin{aligned}
+(\mathbf a\times\mathbf b)^{\top}\operatorname{adj}(\omega^{*})(\mathbf c\times\mathbf d)={}&(\mathbf a^{\top}\omega^{*}\mathbf c)(\mathbf b^{\top}\omega^{*}\mathbf d)\\
+&-(\mathbf a^{\top}\omega^{*}\mathbf d)(\mathbf b^{\top}\omega^{*}\mathbf c),
+\end{aligned}
+\]
+and $\operatorname{adj}(\omega^{*})=\det(K)^2\omega$. Taking $\mathbf a=\vl_1$, $\mathbf c=\vl_2$ and $\mathbf b=\mathbf d=\vh$, and using $\omega^{*}\vh=\vv_3$, gives $\det(K)^2\,\vv_1^{\top}\omega\vv_2=(\vl_1^{\top}\omega^{*}\vl_2)(\vv_3^{\top}\omega\vv_3)-(\vl_1\cdot\vv_3)(\vl_2\cdot\vv_3)$. For $\omega^{*}=\operatorname{diag}(f^2,f^2,1)$ the first factor is linear in $f^2$ and $f^2\,\vv_3^{\top}\omega\vv_3$ is linear in $f^2$, which gives the quadratic.
+\end{proof}
+
+This is the three-direction case of \citet{wildenauer2012}, who state the constraint as the orthogonality of $\vv_1$ and $\vv_2$; we claim only the equivalence. The corner's own sign test cannot select between the two roots. At a root, $\vv_1$, $\vv_2$ and $\vv_3$ are mutually orthogonal under the candidate camera, and $K^{-1}\vv_i$ lies in the interpretation plane of edge $i$; the candidate therefore admits the corner, and \eqref{M-eq:sign} holds automatically. Only the sign test at a second corner can reject a root (Sect.~S13). The derivation in the corner parameterization, together with its degenerate configurations and its conditioning, follows.
+
+\subsection{Derivation in the corner parameterization}\label{sec:Ssolver}
+
+Two right-angle corners that share only their vertical direction, as two objects standing on one floor do, are determined with one equation to spare when $f$ is unknown (\cref{tab:counts}). This section reduces that problem to a quadratic in $f^2$. The reduction shows that the second corner's horizontal lines enter only through the spare equation, so the minimal data are one corner and one more image line parallel to one of its edges; a second corner is one convenient source of that line. The constraint itself is not new. \citet{wildenauer2012} solve for three orthogonal vanishing points and the focal length from four lines aligned with either two or three orthogonal directions, and their three-direction case is the present one: four lines, one direction seen twice and two seen once, yielding a quadratic in $f^2$. In vanishing-point form (\cref{sec:elimination}) our \eqref{eq:quadratic} is that constraint. We derive it in the corner parameterization rather than in the vanishing points for one reason: it keeps the junction structure, which makes the sign test of \cref{M-sec:sign} available as a root filter at a second corner (at the corner that defines the roots it always passes, as \cref{sec:solver} of the article shows), and that is what \cref{sec:e8} tests. We claim no new algebra: \cref{prop:quadsolver} of the article states the condition in coordinate-free form and proves it identical to the classical vanishing-point constraint. The problem is small enough to solve by hand; the general machinery for minimal problems \citep{kukelova2008,larsson2017} is not needed here.
+
+\subsubsection{Setup}
+
+Label each corner's edges so that edge 3 is the shared vertical direction $\vd_3$ and edges 1 and 2 are horizontal. The second corner's horizontal edges are those of the first rotated by an unknown yaw $\psi$ about $\vd_3$. Let $\vl_1,\vl_2,\vl_3$ be the first corner's image lines and $\vl_1',\vl_2',\vl_3'$ the second's, with $\vn_i=K^{\top}\vl_i=(fa_i,fb_i,e_i)$ and likewise $\vn_i'$, all linear in $f$. The six constraints are $\vn_i\cdot\vd_i=0$ and $\vn_i'\cdot\vd_i'=0$ with $\vd_3'=\vd_3$, $\vd_1'=\cos\psi\,\vd_1+\sin\psi\,\vd_2$ and $\vd_2'=-\sin\psi\,\vd_1+\cos\psi\,\vd_2$.
+
+\subsubsection{Elimination}\label{sec:elimination}
+
+The vertical direction lies in both vertical interpretation planes, so
+\begin{equation}
+\vd_3\propto\vw=\vn_3\times\vn_3',
+\end{equation}
+a function of $f$ alone, quadratic in $f$. The horizontal edges of the first corner lie in the plane perpendicular to $\vd_3$; write $\vd_1=\cos\theta\,\vh_1+\sin\theta\,\vh_2$ and $\vd_2=-\sin\theta\,\vh_1+\cos\theta\,\vh_2$ for an orthonormal basis $\vh_1,\vh_2$ of that plane. The constraints $\vn_1\cdot\vd_1=0$ and $\vn_2\cdot\vd_2=0$ each give $\tan\theta$, namely $-(\vn_1\cdot\vh_1)/(\vn_1\cdot\vh_2)$ and $(\vn_2\cdot\vh_2)/(\vn_2\cdot\vh_1)$, and the two agree if and only if $(\vn_1\cdot\vh_1)(\vn_2\cdot\vh_1)+(\vn_1\cdot\vh_2)(\vn_2\cdot\vh_2)=0$, that is, $\vn_1^{\top}(I-\vd_3\vd_3^{\top})\vn_2=0$. Substituting $\vd_3=\vw/|\vw|$ and clearing the denominator,
+\begin{equation}
+E(f)=(\vn_1\cdot\vn_2)\,|\vw|^2-(\vn_1\cdot\vw)(\vn_2\cdot\vw)=0 .
+\label{eq:E}
+\end{equation}
+$E$ is a polynomial of degree six in $f$, and even: $f\mapsto-f$ reverses the first two components of every $\vn$ and of $\vw$, so every term is even. It is therefore a cubic in $x=f^2$, but one root is spurious. Write $\vv_3=\vl_3\times\vl_3'=(p,q,s)$, the vertical vanishing point, which does not depend on $f$; then $\vw=(fp,\,fq,\,f^2s)$, and with $m_i=\vl_i\cdot\vv_3$ and $A_{12}=a_1a_2+b_1b_2$ as in \eqref{M-eq:lin}, direct expansion gives
+\begin{equation}
+\begin{aligned}
+E&=x\,\bigl(c_2x^2+c_1x+c_0\bigr),\\
+c_2&=A_{12}\,s^2,\\
+c_1&=A_{12}(p^2+q^2)+e_1e_2\,s^2-m_1m_2,\\
+c_0&=e_1e_2\,(p^2+q^2)
+\end{aligned}
+\label{eq:coeffs}
+\end{equation}
+(verified symbolically). The factor $x$ is forced: at $f=0$ every $\vn_i$ is $(0,0,e_i)$, so $\vw=0$ and $E=0$. That root carries no information, and the focal length is a root of the quadratic
+\begin{equation}
+c_2x^2+c_1x+c_0=0,
+\label{eq:quadratic}
+\end{equation}
+in closed form, with at most two positive solutions. The yaw follows from $\theta$ and one horizontal line of the second corner, and the equation with the roles of the corners exchanged,
+\begin{equation}
+E'(f)=(\vn_1'\cdot\vn_2')\,|\vw|^2-(\vn_1'\cdot\vw)(\vn_2'\cdot\vw),
+\end{equation}
+is the spare equation that selects between the roots.
+
+\paragraph{A geometric form.} The coefficients \eqref{eq:coeffs} are opaque as written, but the same reduction that simplified \cref{M-sec:bound} applies here too and leaves every term a distance between a point and a line. Let $\vv_3=\vl_3\times\vl_3'$ be the vertical vanishing point, with $|\vv_3|$ its distance from the principal point, and write
+\[
+e_i=\vl_i\cdot(0,0,1),\qquad d_i=\vl_i\cdot(\vv_3/s,\,1),
+\]
+the signed distances from the principal point and from the vanishing point to the image line $\vl_i$, which with $a_i^2+b_i^2=1$ are distances in pixels. Then $d_i=(a_i,b_i)\cdot(\vv_3/s-\vc)$, and \eqref{eq:E} becomes
+\begin{equation}
+\bigl(A_{12}f^2+e_1e_2\bigr)\bigl(f^2+|\vv_3|^2\bigr)=d_1d_2\,f^2 .
+\label{eq:geosolver}
+\end{equation}
+The left factor $A_{12}f^2+e_1e_2$ is the pair factor of \eqref{M-eq:Lprod} for the two horizontal edges, and $f^2+|\vv_3|^2$ is the companion of the $f^2+\rho^2$ that cancelled there, with the vanishing point in place of the corner. Dividing through by $f^2+\rho^2$ and using \eqref{M-eq:lin} gives the equivalent form
+\begin{equation}
+g_{12}\,\bigl(f^2+|\vv_3|^2\bigr)=d_1d_2\,\bigl(f^2+\rho^2\bigr).
+\label{eq:geosolver2}
+\end{equation}
+Written this way the degenerate configurations are immediate. $A_{12}=0$, a raw right angle between the horizontal edges, kills the leading coefficient and leaves a linear equation; $e_1e_2=0$, a horizontal edge line through the principal point, kills the constant term; $s=0$ sends $\vv_3$ to infinity and is treated separately below. One case ties the solver back to \cref{M-sec:bound}: if $d_1d_2=0$, so that the vertical vanishing point lies on one of the two horizontal edge lines, \eqref{eq:geosolver} reduces to $A_{12}f^2+e_1e_2=0$ and the solver returns the single-corner threshold $f_{12}$ of \cref{M-thm:interval}. The second corner then adds nothing the first did not already give, and the configuration should be rejected rather than solved.
+
+\paragraph{The coordinate-free form.} The geometric form generalizes directly to an arbitrary calibration matrix: it is the condition \eqref{eq:cfsolver} of the article, which for $\omega^{*}=\operatorname{diag}(f^2,f^2,1)$ is \eqref{eq:geosolver}. Precisely, the polynomial \eqref{eq:E} equals $\det(K)^2$ times the difference of the two sides of \eqref{eq:cfsolver}, for every upper-triangular $K$. The article shows that this is the classical orthogonality of two vanishing points; the degeneracy $d_1d_2=0$ is the vanishing point falling on an edge line, which is classical too.
+
+\begin{proposition}[Corner-plus-line solver]\label{prop:Squad}
+Let a right-angle corner with image lines $\vl_1,\vl_2,\vl_3$, and one more image line $\vl_3'$ of a scene line parallel to the edge $\vd_3$, be seen by a camera with square pixels, zero skew and known principal point. Then $f^2$ is a root of the quadratic \eqref{eq:quadratic}, whose coefficients \eqref{eq:coeffs} are polynomial in the four lines, so there are at most two solutions. If $\vl_3'$ belongs to a second corner that shares only $\vd_3$, one of that corner's horizontal lines fixes the yaw $\gamma$, and the two together enter $E'$, the polynomial \eqref{eq:E} formed from the second corner's two horizontal lines in place of the first's, which is the one check.
+\end{proposition}
+
+Geometrically, $E=0$ says that the two horizontal edge directions, each the intersection of its interpretation plane with the horizontal plane determined by $\vw$, are orthogonal. In vanishing-point terms, $\vv_3$ is known without $f$; the horizon is its polar line $\omega\vv_3\propto(p,q,f^2s)$, which depends on $f$; the horizontal vanishing points $\vv_1,\vv_2$ are the intersections of $\vl_1$ and $\vl_2$ with the horizon; and \eqref{eq:quadratic} is their orthogonality condition $\vv_1^{\top}\omega\vv_2=0$. If the horizon were known in pixels, the same condition would be linear in $f^2$; here its one free parameter is paid for by the second vertical line. A gravity sensor does not give the horizon in pixels. It gives the vertical $\vg$ in camera coordinates, and the image of the horizon, $K^{-\top}\vg\propto(g_x,g_y,f g_z)$, still depends on $f$ (\cref{sec:variants}).
+
+\paragraph{Degenerate configurations.} Each corresponds to a vanishing coefficient in \eqref{eq:coeffs}. $\vv_3=0$, the two vertical lines coincide: $\vw\equiv0$, $E\equiv0$, no information. $s=0$, the vertical lines parallel and the vertical vanishing point at infinity (camera exactly level): $c_2=0$ and \eqref{eq:quadratic} is linear with the single root $x=-c_0/c_1$; this is the limit of the ill-conditioning measured in \cref{sec:conditioning}. $A_{12}=0$, a raw right angle at corner 1: again $c_2=0$. $e_1e_2=0$, an edge of corner 1 through the principal point: $c_0=0$, so $x=0$ becomes a double root and the one informative root is $-c_1/c_2$. $c_1^2=4c_0c_2$: a double root, with its usual sensitivity. The single-corner degeneracies of \cref{M-sec:sign} apply to each corner as before.
+
+\paragraph{Root validation.} For each positive root $x$ of \eqref{eq:quadratic}, set $f=\sqrt{x}$ and $\vd_3=\vw/|\vw|$; recover $\theta$ from $\vn_1$ (its agreement with $\vn_2$ is \eqref{eq:E} itself and holds to rounding); when a second corner is present, recover $\psi$ from $\vn_1'$; evaluate the residual of $\vn_2'\cdot\vd_2'=0$, equivalently $E'$; and run the sign test of \cref{M-sec:sign} at both corners with the recovered $K$. Keep the root with the smaller residual, and reject the pair when both residuals exceed a threshold set by the line noise or when either corner fails the sign test. In a RANSAC loop (\cref{sec:ransac}) the residual is the per-sample score. How often the second root is removed by the sign test alone, and how often $E'$ is needed, is reported in \cref{sec:e8}.
+
+\subsubsection{Variants}\label{sec:variants}
+
+\paragraph{Gravity known.} With an inertial sensor giving the vertical $\vg$ in camera coordinates, $\vd_3=\vg$ is known without a second vertical line. The corner's own vertical line then gives $f$ linearly, from $\vn_3\cdot\vg=f\,(a_3g_x+b_3g_y)+e_3g_z=0$, unless that line passes through the principal point. The horizontal pair gives $\vn_1^{\top}(I-\vg\vg^{\top})\vn_2=0$, which is a quadratic in $f$ rather than in $f^2$, because $\vg$, unlike $\vw$, does not scale with $f$. It serves as an independent estimate or as a check. This is a one-corner focal-length solver, at the price of a sensor whose rotation to the camera is calibrated.
+
+\paragraph{Shared frame.} If the two corners share all three axes, each direction has two lines, the three vanishing points are known, and the problem is the linear one of \cref{sec:vp}; the quadratic is not needed.
+
+\subsubsection{Conditioning}\label{sec:conditioning}
+
+The solver is exact at zero noise, and its accuracy depends on the angle between the two vertical image lines, which governs the conditioning of $\vw$. When the camera is nearly level the vertical lines are nearly parallel, $\vv_3$ is far away, and small direction errors move $\vw$ a great deal; the horizon is then nearly independent of $f$ and most of the information about $f$ comes from the horizontal pair. \Cref{sec:e8} measures this: with $0.5$\,px endpoint noise on $150$\,px edges the median relative error in $f$ is 1.9\% when the vertical lines differ by more than $15^\circ$ and 13\% when they differ by less than $2^\circ$. The fraction of pairs for which the quadratic has no positive root rises in the same direction. A RANSAC loop over detected junctions should therefore prefer corner pairs with well-separated vertical lines, or fall back to the gravity variant where a sensor is available.
+
+% ======================================================================
+
+\section{Mirror resolution from two corners}\label{sec:mirror}\label{sec:two}
+
+The results so far concern the camera. The orientation recovered in \cref{M-sec:closed} remains ambiguous up to the mirror of \cref{M-sec:mirror1}, and no information about the camera can resolve it, since the mirror acts within a fixed $K$. This section shows that, under perspective and with the camera calibrated, a second corner of the same frame does resolve it. Degree-of-freedom counts for the other two-corner configurations, and the classical calibration from three vanishing points that two corners of one frame make available, are given in Sect.~S3.
+
+
+Two corners of one box or room share one Manhattan frame, but in general not one \emph{oriented} frame. When edges are matched by direction, as they are when grouped by vanishing point, the edge of corner 2 along a given axis may point opposite to the edge of corner 1, as happens at the two ends of one box edge. Let $R$ be the orthonormal matrix with columns $\vd_1,\vd_2,\vd_3$ of corner 1; corner 2 then has frame $RD$ for a diagonal sign matrix $D$ that the image does not reveal. With $K$ known, \cref{M-sec:closed} returns each corner's frame up to its own mirror: the alternative for corner $i$ is $H_i$ times the truth, where $H_i=I-2\hat\vr_i\hat\vr_i^{\top}$ is the reflection in the plane through $O$ perpendicular to its ray. We call two hypotheses, one per corner, \emph{consistent} if the two frames agree up to a diagonal sign matrix, which is all that unoriented matching can require. Each corner on its own leaves two candidate frames, its true frame and its mirror image, so a pair of corners leaves four combinations; the question is which of them are consistent.
+
+\begin{theorem}[Mirror resolution from two corners]\label{thm:mirror}
+Let two nondegenerate right-angle corners (\cref{M-sec:sign}) of one Manhattan frame be seen by a calibrated camera along rays $\vr_1,\vr_2$, with the correspondence between the two corners' edges known and edges matched as unoriented axes, and let $R$, $D$, $H_i$ and consistency be as above. If $\vr_1\nparallel\vr_2$, then of the four hypothesis pairs $(R,RD)$, $(H_1R,RD)$, $(R,H_2RD)$ and $(H_1R,H_2RD)$, only the true pair $(R,RD)$ is consistent. If $\vr_1\parallel\vr_2$, the double flip $(H_1R,H_2RD)$ is consistent as well.
+\end{theorem}
+\begin{proof}
+A pair $(G_1R,\,G_2RD)$ with $G_i\in\{I,H_i\}$ is consistent when the two frames agree up to a diagonal sign matrix, that is when $G_2^{-1}G_1=RD''R^{\top}$ for some diagonal $D''$ with entries in $\{+1,-1\}$. The three nontrivial pairs are classified by the determinant.
+
+\emph{Single flips.} $\det H_1=-1$, so $(H_1R,RD)$ is consistent only if $\det D''=-1$. A matrix $RD''R^{\top}$ of determinant $-1$ is either the reflection in the plane perpendicular to a frame axis $\vd_k$, when $D''$ has one entry $-1$, or $-I$, when it has three. The latter has eigenvalues $(-1,-1,-1)$ and is not a reflection, so the only possibility is $H_1=I-2\hat\vr_1\hat\vr_1^{\top}=I-2\vd_k\vd_k^{\top}$, which forces $\hat\vr_1=\pm\vd_k$: an edge along the ray, excluded for a nondegenerate corner. The same argument rules out $(R,H_2RD)$.
+
+\emph{The double flip.} Here $\det(H_2H_1)=+1$, so $D''$ has an even number of $-1$ entries and $RD''R^{\top}$ is either $I$ or the rotation by $180^\circ$ about a frame axis. As a composition of two reflections, $H_2H_1$ is the rotation about $\vr_1\times\vr_2$ by twice the angle between the rays. It equals $I$ exactly when $\vr_1\parallel\vr_2$, which is the stated exception. It equals a $180^\circ$ rotation about $\vd_k$ exactly when the rays are $90^\circ$ apart and $\vr_1\times\vr_2\parallel\vd_k$; but then both rays and the other two axes lie in the plane perpendicular to $\vd_k$, so at each corner those two edges share one image line and both corners are degenerate.
+\end{proof}
+
+The correspondence between the edges is essential: if $\hat\vr_1\propto\vd_1-\vd_2$, the reflection $H_1$ exchanges two axes, and without correspondence a single flip is consistent. With correspondence, one matched axis suffices.
+
+\begin{remark}[One matched axis]\label{cor:oneaxis}
+Under the hypotheses of \cref{thm:mirror}, let only one axis $\vd_k$ be matched between the corners. The single flips are inconsistent, and the double flip is consistent if and only if the rays are parallel, or $90^\circ$ apart with $\vd_k$ in their plane.
+\end{remark}
+\begin{proof}
+A hypothesis pair is now consistent when it maps $\vd_k$ to $\pm\vd_k$. A single flip does so only if $H_i\vd_k=\vd_k-2(\hat\vr_i\cdot\vd_k)\hat\vr_i$ is parallel to $\vd_k$, that is, if $\hat\vr_i\parallel\vd_k$ or $\hat\vr_i\perp\vd_k$: edge $k$ along the ray, or the other two edges in a face that contains the ray, so that they share an image line; both are degenerate. The double flip $H_2H_1$ is the rotation about $\vr_1\times\vr_2$ by twice the angle between the rays. It maps $\vd_k$ to $\pm\vd_k$ exactly when it is the identity, so that the rays are parallel; when $\vd_k$ lies along its axis, which makes $\vd_k$ perpendicular to both rays and both corners degenerate; or when it is a half-turn, the rays $90^\circ$ apart, and $\vd_k$ is perpendicular to its axis, that is, in the plane of the rays.
+\end{proof}
+
+ The theorem assumes the camera known. For a candidate camera, the rays and reflections are those that the candidate defines; the experiments of \cref{sec:e7} use the true camera.
+
+In vanishing-point terms the conclusion is unsurprising: the two image lines of each axis meet at its vanishing point, which fixes the axis. Under orthography, by contrast, they are parallel, the mirror is the image plane for every corner, and the skeleton of a polyhedron keeps exactly two interpretations \citep[Proposition~4]{kanatani1986}. What the proof adds is a classification of the failures: a single flip survives only when an edge points along a ray, the double flip only when the rays coincide, and the remaining case, rays $90^\circ$ apart, is excluded because the junctions then degenerate in the image. \citet{shakunaga1989} used this consistency in practice. Exact uniqueness, however, is not stability: the double-flip hypothesis differs from the true pair by an angle that shrinks as the rays approach each other, so the resolution is weakest for corners near each other (\cref{sec:e7}).
+
+% ======================================================================
+
+\subsection{Simulation}\label{sec:e7}
+Two hypothesized frames are scored by their disagreement, the mean over the three axes of the angle between corresponding columns taken as unoriented lines; the disagreement is zero exactly when the frames agree up to a diagonal sign matrix. The hypothesis pair with the smallest disagreement is selected, and its margin is the gap in that score to the second-best pair. Each of $6000$ pairs consists of one random frame seen at two vertices placed independently in the image at depths $2$ to $6$, the second with its edges reoriented at random, at $60^\circ$ and $\sigma=0.5$\,px. The selected pair was the true pair in 99.5\% of cases (Wilson 95\% interval 99.3 to 99.6\%). Accuracy and margin both fell as the rays approached each other, accuracy to $94.0\%$ below $5^\circ$ of separation (89.0 to 96.8\%, $n=150$) (\cref{fig:Smirror}). The residual failures are not sign errors but pairs in which a corner's own closed-form frame is already off by more than the margin: the degradation at small separation reflects the stability limit of \cref{thm:mirror}, not a failure of the theorem.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.55\linewidth]{figures/fig5c_mirror.pdf}
+\caption{Fraction of two-corner pairs of one frame whose mirror sign is resolved correctly, by ray separation, with 95\% binomial intervals and bin counts ($60^\circ$, $\sigma=0.5$\,px, $6000$ pairs); the vertical axis starts at 85\%}
+\label{fig:Smirror}
+\end{figure}
+
+\section{Two corners: counts, configurations and classical restatements}\label{sec:Stwo}
+
+A second corner changes what is determined in three distinct ways, depending on whether it shares the first corner's Manhattan frame, whether an edge connects them, and whether $f$ is known. This section counts at the level of image lines, below the six-vertex threshold at which the parallelepiped method applies.
+
+\subsection{The counting rule}
+
+The projection $\vc_i$ of a corner point fixes its ray but not its depth, and the image line of an edge through $\vc_i$ does not depend on that depth. Corner positions therefore drop out of the count, and the observations that constrain rotation and intrinsics are the image line directions: three per unconnected corner. The unknowns are the rotations and whatever intrinsics are free. \Cref{tab:counts} lists the configurations and \cref{fig:configs} illustrates three of them.
+
+The counts are generic: they hold for configurations outside the algebraic subsets on which an observation becomes dependent on the others (coincident lines, a corner at the principal point, the degeneracies named in each section). A net count of zero or more says that the unknowns are locally identifiable from the observations, not that the solution is unique or well conditioned. The number of algebraic solutions, and which of them survive the sign test, is established separately where a solver is given (two solutions in \cref{M-sec:closed}, at most two in \cref{sec:solver}), and conditioning is measured in \cref{M-sec:experiments}. A negative count says that a one-parameter family survives, which is the admissible-set case of \cref{M-sec:bound}.
+
+\begin{table*}[t]
+\centering\small
+\caption{Degree-of-freedom count for one and two right-angle corners. Observations are image line directions, and net is observations minus unknowns. For the connected pair the shared edge is a single line, and the corner positions enter only through the relative depth.}
+\label{tab:counts}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}X c c c >{\raggedright\arraybackslash}X}
+\toprule
+Configuration & Unknowns & Observations & Net & Determined \\
+\midrule
+One corner, $K$ known & 3 & 3 & 0 & $R$ up to mirror \citep{kanatani1988} \\
+One corner, $f$ unknown & 4 & 3 & $-1$ & lower bound on $f$, upper bound if raw angles fail the orthographic test; $R(f)$ (\cref{M-sec:bound}) \\
+Three nonconcurrent lines of one frame, $K$ known & 3 & 3 & 0 & $R$, at most two solutions (\cref{prop:threelines}) \\
+Two corners, same frame, $K$ known & 3 & 6 & $+3$ & $R$; mirror resolved; 3 checks \\
+Two corners, same frame, $f$ unknown & 4 & 6 & $+2$ & $f$ and $R$; 2 checks \\
+Two corners, same frame, $f$ and principal point unknown & 6 & 6 & 0 & $f$, principal point, $R$ \citep{caprile1990} \\
+One corner and one line parallel to one of its edges, $f$ unknown & 4 & 4 & 0 & $f$ (quadratic in $f^2$, at most two roots) and $R$ (\cref{sec:solver}) \\
+Two corners sharing only the up axis, $f$ unknown & 5 & 6 & $+1$ & $f$ from four of the lines, both rotations; 1 check (\cref{sec:solver}) \\
+Two corners, independent frames, $f$ unknown & 7 & 6 & $-1$ & intersection of two admissible sets \\
+Two corners connected by an edge, same frame, $f$ unknown & 4 & 5 & $+1$ & $f$, $R$; relative depth of the corners from their positions \\
+Six or more matched vertices of one box & \multicolumn{3}{c}{linear in a 5-parameter upgrade} & $f$, principal point, box shape \citep{wilczkowiak2001} \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\input{figures/fig3_configurations}
+\caption{Two-corner configurations, the two corners used being the marked vertices: (a) connected by an edge, (b) one Manhattan frame, (c) independent frames. With $f$ unknown and the principal point known, the net counts of \cref{tab:counts} are $+1$, $+2$ and $-1$ respectively}
+\label{fig:configs}
+\end{figure}
+
+\begin{proposition}[Three nonconcurrent lines]\label{prop:threelines}
+Three image lines of one Manhattan frame, one per axis and not concurrent, with $K$ known, admit at most two orthonormal frames.
+\end{proposition}
+\begin{proof}
+Write $\vn_i=K^{\top}\vl_i$. Then $\vd_1$ lies in the plane perpendicular to $\vn_1$, so $\vd_1=\cos\alpha\,\vh_1+\sin\alpha\,\vh_2$ for a fixed orthonormal basis $\vh_1,\vh_2$ of that plane, the choice of which affects only the origin of $\alpha$. Since $\vd_2\perp\vn_2$ and $\vd_2\perp\vd_1$, we have $\vd_2\parallel\vn_2\times\vd_1$ provided $\vd_1\nparallel\vn_2$. The excluded orientations form at most two values of $\alpha$ in $[0,\pi)$, namely those with $\vd_1=\pm\vn_2/|\vn_2|$, which require $\vn_2\perp\vn_1$; at such an $\alpha$ the axis $\vd_2$ is unconstrained by $\vn_2$ and the configuration is degenerate in the sense of \cref{M-sec:sign}. Away from them,
+\[
+\vd_3=\vd_1\times\vd_2\parallel\vd_1\times(\vn_2\times\vd_1)=\vn_2-\vd_1(\vd_1\cdot\vn_2).
+\]
+The remaining constraint $\vn_3\cdot\vd_3=0$ is therefore
+\[
+\vn_2\cdot\vn_3-(\vn_3\cdot\vd_1)(\vn_2\cdot\vd_1)=0 ,
+\]
+a quadratic form in $(\cos\alpha,\sin\alpha)$ and hence a trigonometric polynomial of degree two, with at most four roots in $[0,2\pi)$. Replacing $\alpha$ by $\alpha+\pi$ sends $\vd_1$ to $-\vd_1$ and gives the same frame, so at most two are distinct.
+\end{proof}
+Over $20\,000$ random configurations the count was two in all but six, and never more, so the bound is attained generically. \Citet{shakunaga1989} report the same count.
+
+\subsection{Same frame, \texorpdfstring{$f$}{f} unknown: vanishing points (restated)}\label{sec:vp}
+
+When two corners share a frame, each direction is seen as two lines whose intersection is its vanishing point $\vv_i=K\vd_i$, and orthogonality becomes $\vv_i^{\top}\omega\,\vv_j=0$ with $\omega=(KK^{\top})^{-1}$ \citep{hartley2004}. With square pixels and zero skew $\omega$ has three free parameters, so three orthogonal vanishing points calibrate $f$ and the principal point exactly. The principal point $\mathbf{x}_0$ is the orthocenter of the triangle $\vv_1\vv_2\vv_3$ and $f^2=-(\vv_i-\mathbf{x}_0)\cdot(\vv_j-\mathbf{x}_0)$ for any pair, with the vanishing points in pixel coordinates \citep{caprile1990}; see \cref{fig:vp}. Six lines, two per direction, are the minimum for which this works, and two corners provide that. The $+2$ of \cref{tab:counts} is the pair of checks left over when the principal point is known.
+
+\begin{figure}[t]
+\centering
+\input{figures/fig4_vanishing}
+\caption{Two corners of one frame give three vanishing points whose orthocenter is the principal point. One corner alone fixes only the line on which each vanishing point lies.}
+\label{fig:vp}
+\end{figure}
+
+The figure also shows why one corner is not enough: each of its lines passes through one vanishing point, but a single line only says where on that line it lies. The three unknown positions along the lines are the three $k_i$ of \cref{M-sec:single}, and the spare degree of freedom is $f$.
+
+\subsection{Independent frames}
+
+Two boxes rotated arbitrarily share only the camera. Each contributes three lines against its own three-parameter rotation, so neither helps the other and $f$ stays under-determined by one. What the pair gives is the intersection of two admissible sets from \cref{M-sec:bound}, typically tighter than either because the bounds depend on image position and angles differently. If the two frames share one axis, the usual case of two objects on one floor, the second rotation has one free parameter and the count becomes $+1$: $f$ is determined with one equation spare. \Cref{sec:solver} gives the solver and shows that four of the six lines already determine $f$.
+
+\subsection{Connected by an edge}
+
+When the two corners are the ends of one edge, the shared edge appears as a single image line through both $\vc_1$ and $\vc_2$ rather than as one line per corner, and its direction is in any case fixed by $\vc_1$ and $\vc_2$. There are therefore five line observations, the shared line and the four non-shared ones, against the four unknowns $R$ and $f$, and the calibration count drops from $+2$ to $+1$: $f$ is still determined, with one check instead of two. The corner positions do not enter this count; they determine the relative depth, as described below. In vanishing-point terms, the shared direction has only one line, so its vanishing point is known only to lie on that line. Three different things are determined, and should be kept apart. \emph{Calibration}: $f$ and $R$, with one check. \emph{Relative position up to scale}: write $P_1=\lambda\vr_1$ with $\lambda$ the depth gauge and $P_2=P_1+\mu\,\vd_{12}$; the ray condition $P_2\parallel\vr_2$ reads $\vr_1\times\vr_2+(\mu/\lambda)\,\vd_{12}\times\vr_2=0$, a consistent vector equation because $\vr_1$, $\vr_2$ and $\vd_{12}$ are coplanar (all lie in the interpretation plane of the shared line), so $\mu/\lambda$ is determined and the corners are located relative to each other. \emph{Metric scale}: one known length, of the shared edge or of any edge whose far end is also seen, fixes $\lambda$. A connected pair also yields the shared direction from one long segment, in practice the most accurate of the three. This row is the smallest fragment of the parallelepiped method: the shared edge is the first piece of the box's affine structure, and with four more matched vertices the canonic projection matrix of \citet{wilczkowiak2001} becomes available.
+
+\subsection{Corners across images}\label{sec:multiview}
+
+A corner, or any corner aligned to the same Manhattan frame, seen in two images gives each camera's absolute rotation into that frame, so the relative rotation between cameras follows without point correspondences and without the degeneracy that essential-matrix estimation suffers under pure rotation. \citet{kanatani1986} used the relative rotation between two corner images to track an object under orthography; this is the same computation with the camera moving. Two caveats apply. The absolute rotations are defined only up to the 24 rotational symmetries of the cube unless the axes are matched across the views, for instance by gravity or by appearance. Translation needs more than one corner. Once both rotations are known, the corner point gives one epipolar equation on the two-parameter baseline direction, and the edge lines add nothing, since in each view an edge line is fixed by the corner point and by the vanishing point that the rotation already predicts. A connected pair gives two point matches, which fix the baseline direction, and one known edge length then fixes its length.
+
+% ======================================================================
+
+\section{What opacity adds}\label{sec:opacity}
+
+\Cref{M-sec:single,M-sec:bound,sec:two} treat a corner as three lines, as if its faces were glass. \citet{kanatani1986} analyzed opaque rectangular polyhedra under orthography: his Proposition~7 lists the visibility conditions a corner must satisfy, his Propositions~5 and~6 tie the states of adjacent corners together along a shared edge, and his examples use both to detect hidden lines and reject interpretations. This section restates the part of that analysis that bears on one corner under perspective, then adds what he did not treat.
+
+\paragraph{Visibility is mirror-symmetric (restated).} For a convex corner the face spanned by edges $i$ and $j$ has outward normal $-\vd_k$, so it is visible exactly when the third edge recedes, $\alpha_k>0$. At a fork all three $\alpha$ are positive and all three faces show; at an arrow the shaft is the one edge that approaches the camera, and the face opposite it, between the barbs, is hidden. For a concave corner the normals reverse and the condition is $\alpha_k<0$. The mirror flip of \cref{M-sec:mirror1} negates every $\alpha_i$, so both hypotheses predict the same visible faces and the same junction type. Opacity alone leaves the mirror ambiguity where it was; this is why the hollow-mask illusion works.
+
+\paragraph{The camera's side resolves it.} What breaks the symmetry is knowing on which side of the faces the camera is. Assume the camera is inside the room, the three faces at the junction are two walls and the floor or ceiling, the junction has been correctly classified as a room corner, and its three visible edges are the wall--wall and wall--floor edges rather than occluding contours of nearer objects. Then the camera lies in the open octant bounded by three opaque faces, so all three faces are visible, all $\alpha_i<0$, and every room corner is a fork with the concave sign. A box seen from outside may be a fork or an arrow. Hence an arrow junction is never a wall corner seen from inside, and the prior ``this image was taken indoors'' fixes the sign of every fork that is a wall corner. What remains is the choice between a box corner and a room corner, a scene-level question rather than a geometric one.
+
+\paragraph{A corner known to be a room corner.} When the concave sign is given, four things follow. With $K$ known the rotation from one corner is unique: the closed form of \cref{M-sec:closed} is taken with all $k_i$ negative. The junction must be a fork, which tests the detection. With $f$ unknown, \cref{prop:concave} applies: the admissible set keeps only its fork-pattern components, and the known sign then selects the concave solution on them. The three faces are the floor or ceiling and two walls, so identifying the floor region identifies the vertical edge, which fixes which axis of the recovered frame is up, and a known camera height then makes the floor plane metric by single-view metrology \citep{criminisi2000}. Room corners are also almost never alone: the floor--wall edge runs to the next corner, so the connected-pair row of \cref{tab:counts} is the normal case indoors. A wide-angle view showing the four corners of an end wall and two of an adjacent wall reaches the six vertices at which the parallelepiped method applies to the room itself, seen from inside.
+
+\paragraph{Edge labels (restated, then combined).} With opaque faces every image edge is convex, concave or occluding \citep{huffman1971,clowes1971,waltz1975}. Under the convex reading of an arrow the barbs are occluding edges and the surface beyond each belongs to something farther away; under the concave reading they are convex edges between faces of one object. Occluding edges have observable signatures: T-junctions where other edges vanish behind them, unrelated texture on the two sides, parallax under motion. For a connected pair the shared edge carries one label at both ends, so the two corners' signs are linked \citep[Proposition~6]{kanatani1986}, and this link holds under orthography, where \cref{sec:mirror} fails. The two mechanisms are complementary: the label link propagates one known sign across a polyhedron, and the perspective argument of \cref{sec:mirror} supplies that sign.
+
+\paragraph{Sidedness in several views.} Each visible face places the camera center on its outer side. For the face spanned by $\vd_i,\vd_j$ of a convex corner at $P$ the condition is $(O-P)\cdot\vd_k<0$, with the inequality reversed for a concave corner; in the corner frame, where $P$ is the origin, each is a sign condition on one coordinate of the camera center, one per visible face. In the two-view setting of \cref{sec:multiview} these inequalities, one set per view, bound each camera center to an orthant of the corner frame and hence the baseline direction to a cone, complementing the single epipolar equation that one corner point provides.
+
+% ======================================================================
+% ======================================================================
+
+\subsection{A corner whose edges share one sign}\label{sec:concave}
+
+Suppose the corner is known to be a room corner seen from inside, so that all three edges approach the camera and all three $k_i$ are negative. Then every product $k_ik_j$ is positive, and by \eqref{M-eq:kk} each $g_{ij}(f)$ must be negative on its own: the junction must be a fork in the canonical view. The same holds for a box corner known to have all three edges receding, since then all $k_i$ are positive and the products are again positive. The prior is therefore a prior on the fork pattern. It cannot tell the room corner from the box corner, because that choice is the mirror of \cref{M-sec:mirror1}.
+
+\begin{proposition}[Uniform-sign prior]\label{prop:concave}
+If the three edges of a corner are known to have the same sign, its admissible set is $F^{c}=\{f>0:\,A_{ij}f^2+e_ie_j<0\text{ for all three pairs}\}$, an intersection of three sets each of which is an open half-line, all of $(0,\infty)$, or empty, and hence an interval. By \cref{M-thm:interval} and \cref{M-prop:bound}(3), $F^c=F$ whenever the sign pattern on $F$ is $(-,-,-)$, and $F^c=\emptyset$ otherwise.
+\end{proposition}
+\begin{proof}
+$F^c\subseteq F$ since three negatives have a negative product. Each $\{x>0:A_{ij}x+e_ie_j<0\}$ is an interval: a half-line when $A_{ij}\neq0$, and either $(0,\infty)$ or $\emptyset$ when $A_{ij}=0$, according to the sign of $e_ie_j$. An intersection of intervals is an interval, so $F^c$ is one. By \cref{M-prop:bound}(3) the pattern is constant on $F$, which is one interval by \cref{M-thm:interval}, so $F$ is either contained in $F^c$ or disjoint from it.
+\end{proof}
+
+The prior therefore never tightens the bound; in \cref{M-sec:e2} the two sets coincided for every corner whose edges all approach the camera. Its value is as a test: it rejects a junction whose admissible set carries the arrow pattern, which under the stated prior is either a false detection or a sign that $K$ is wrong.
+
+In the experiments of \cref{M-sec:e2} of the article, for corners whose three edges all approach the camera in truth, the set $F^c$ of \cref{prop:concave} coincided with $F$ in every case.
+
+\section{Further results on several frames}\label{sec:Sframes}
+
+Shared axes are common outdoors: buildings standing at different angles on level ground have different horizontal axes but the same vertical. This is the Atlanta world of \citet{schindler2004}. However many frames such a scene contains, it leaves one camera parameter undetermined, an ambiguity that amounts to a stretch of the scene along the vertical. In classical terms, the frames contribute the pole--polar relation between the vertical vanishing point and the horizon, and the conjugacy of two pairs of points on the horizon. These amount to four conditions on five parameters if each frame shows two of its edge-on lines; for a nearly level camera only the horizon passes through the image, and only the two pole--polar conditions are forced. Further pairs on the same horizon add nothing. These are the pole--polar and circular-point constraints of \citet{liebowitz1999}.
+
+\subsection{A camera that only pitches}
+
+When the camera only pitches, the admitted family is an explicit interval, and the description is global.
+
+\begin{remark}[A camera that only pitches]\label{cor:pitch}
+Let the images of \cref{M-cor:horizons} show the other edge-on lines missing the image, let the camera only pitch between them, and let two of their vertical directions be distinct and not perpendicular. Then the cameras that admit all their junctions are exactly $K(I+t\,\mathbf e_1\mathbf e_1^{\top})K^{\top}$ with $t$ in an interval $(t_-,t_+)\ni0$, up to its ends, which is the intersection over the images of the conditions \eqref{M-eq:oneline} with $N=I+t\,\mathbf a\mathbf a^{\top}$, $\mathbf a=R_m^{\top}\mathbf e_1$ for the frame $R_m$ of image $m$.
+\end{remark}
+\begin{proof}
+Each vertical direction is an eigenvector of $\Xi$ by \cref{M-thm:frames}(1), and they all lie in the plane perpendicular to $\mathbf e_1$. Two of them, distinct and not perpendicular, make $\Xi$ a multiple of the identity on that plane, so that $\Xi=\alpha I+\beta\,\mathbf e_1\mathbf e_1^{\top}$, which up to scale is $I+t\,\mathbf e_1\mathbf e_1^{\top}$ with $t>-1$. For image $m$, $N=R_m^{\top}\Xi R_m=I+t\,\mathbf a\mathbf a^{\top}$, whose entries are affine in $t$ and which has $a_k=0$ for the vertical axis $k$, since $\mathbf e_1$ is perpendicular to that axis. \Cref{M-prop:oneline} turns each image's junctions into five conditions affine in $t$, and the intersection of the resulting half-lines is an interval that contains $0$, the true camera.
+\end{proof}
+
+For the three images of Sect.~S11, at pitches of $4^\circ$, $11^\circ$ and $-7^\circ$, the formula gives the interval $(-0.166,\,0.227)$; a dense check of the junctions confirms it to within its grid step of $0.01$, giving $[-0.16,\,0.23]$.
+
+\subsection{Two images that show only their horizons}
+
+\begin{remark}[Two images that show only their horizons]\label{cor:twohorizons}
+Two images taken with a camera with square pixels and zero skew, each showing only its horizon, passing through the image, determine its focal length and principal point if and only if their vertical directions are distinct, not perpendicular, and not both parallel to the image plane.
+\end{remark}
+\begin{proof}
+The visible axes are the two vertical directions $\mathbf g_1$, $\mathbf g_2$, and no axis is touching. If neither is tilted, this is case (1) of \cref{M-thm:fpp}. If only $\mathbf g_1$ is, $\mathbf g_2$ has $z=0$, so $\bar{\mathbf g}_1\cdot\bar{\mathbf g}_2=\mathbf g_1\cdot\mathbf g_2$, and $\mathbf g_2$ is normal to the plane of $\mathbf g_1$ and $\hat{\mathbf z}$ exactly when the two are perpendicular, which is case (2). If both are tilted and distinct, either their image directions are not parallel and the camera is determined, or both lie in one plane with $\hat{\mathbf z}$, which is case (2) exactly when they are perpendicular.
+\end{proof}
+
+This holds even if the camera only pitches, a motion that leaves the aspect ratio of a general camera undetermined.
+
+\section{Model error: corners that are not right-angled, and lens distortion}\label{sec:robust}
+
+The results so far assume exact right angles and a pinhole camera. The next two propositions describe what happens when either assumption fails.
+
+\begin{proposition}[Corners that are not right-angled]\label{prop:nonright}
+Let a corner have unit edge directions $\vd_i$, not necessarily orthogonal, seen by the true camera along the viewing ray $\vr$, with $\hat\vr=\vr/\|\vr\|$, and let $c_{ij}=\vd_i\cdot\vd_j$ and $a_i=\vd_i\cdot\hat\vr$. The true camera admits the junction as the image of a right-angle corner if and only if
+\begin{equation}
+\prod_{(i,j)}\bigl(c_{ij}-a_ia_j\bigr)<0 .
+\label{eq:nonright}
+\end{equation}
+In particular it does whenever $|c_{ij}|<|a_ia_j|$ for every pair, and then, when only the focal length is unknown, the true $f$ lies in $F$.
+\end{proposition}
+\begin{proof}
+The normal $\vn_i$ of the interpretation plane of edge $i$ is perpendicular to $\vd_i$ and to $\vr$, so it is a nonzero multiple of $\vd_i\times\vr$, and $\vt_i=\vn_i\times\vr$ is a nonzero multiple of $(\vd_i\times\vr)\times\vr=-\|\vr\|^2\bigl(\vd_i-a_i\hat\vr\bigr)$. Hence $g_{ij}=\vt_i\cdot\vt_j=m_im_j\,(c_{ij}-a_ia_j)$ with nonzero $m_i$, and since each $m_i$ appears twice in $g_{12}g_{23}g_{31}$, the product has the sign of \eqref{eq:nonright}; \cref{M-lem:sign} gives the equivalence. If $|c_{ij}|<|a_ia_j|$ for every pair, each factor has the sign of $-a_ia_j$, and the product has the sign of $-(a_1a_2a_3)^2<0$.
+\end{proof}
+
+For a right-angle corner, $c_{ij}=0$ and \eqref{eq:nonright} reads $-(a_1a_2a_3)^2<0$, which holds unless an edge is perpendicular to the ray. For a corner whose angles are slightly off, the sufficient condition fails only where an edge is nearly perpendicular to the ray, that is, near an edge-on line, which is precisely where the informative junctions lie. In simulation at $60^\circ$, without noise and with each edge tilted by up to $2^\circ$, $5^\circ$ and $10^\circ$ away from an orthogonal frame, the true $f$ remained in $F$ for $92.3\%$, $84.2\%$ and $74.6\%$ of junctions. A few degrees of model error thus cost more coverage than a pixel of noise (\cref{M-sec:e2}).
+
+\begin{proposition}[Radial distortion]\label{prop:distortion}
+Let the image be distorted about the principal point by $\boldsymbol\chi\mapsto\boldsymbol\chi(1+k\|\boldsymbol\chi\|^2)$, with $1+k\rho^2>0$ and $1+3k\rho^2>0$, and let each edge be represented by its tangent at the distorted vertex. A junction at distance $\rho$ from the principal point with angles $\psi_i$ is then observed at distance $\rho'=\rho(1+k\rho^2)$ with angles $\psi'_i$ in the same quadrants as the $\psi_i$ and
+\[
+\tan\psi'_i=\vartheta\tan\psi_i,\qquad \vartheta=\frac{1+k\rho^2}{1+3k\rho^2}.
+\]
+Writing $F(\rho,\psi)$ for the admissible set of a junction with these data, the observed junction has the admissible set $F(\rho',\psi')=(1+k\rho^2)\,F(\rho,\psi')$.
+\end{proposition}
+\begin{proof}
+The differential of the distortion at $\boldsymbol\chi$ is $(1+k\|\boldsymbol\chi\|^2)I+2k\,\boldsymbol\chi\boldsymbol\chi^{\top}$, which multiplies the direction away from the principal point by $1+3k\rho^2$ and the perpendicular direction by $1+k\rho^2$. A half-edge whose components along and across that direction are a positive multiple of $(\cos\psi_i,\sin\psi_i)$ is therefore mapped to a positive multiple of $\bigl((1+3k\rho^2)\cos\psi_i,(1+k\rho^2)\sin\psi_i\bigr)$, which gives $\psi'_i$, and the vertex moves along the line through the principal point, to distance $\rho'$. The last equality is \cref{M-cor:similar}.
+\end{proof}
+
+Distortion thus acts on each junction by a scaling about the principal point together with a shear of its angles toward or away from the direction of the principal point, and $F$ moves accordingly. Fitting a segment by a chord rather than a tangent adds an error that vanishes as the segments shorten. In simulation at $60^\circ$, without noise and with tangent edges, distortion that displaces the image corners by $1\%$, $2\%$ and $5\%$ left the true $f$ in $F$ for $97.9\%$, $96.1\%$ and $92.2\%$ of junctions. The York Urban segments were used as given (\cref{sec:proposals}).
+
+With \cref{M-prop:certified}, distortion yields a guarantee rather than a coverage figure.
+
+\begin{corollary}[Distortion with fitted segments]\label{cor:chord}
+Under the hypotheses of \cref{prop:distortion}, let each edge be measured by the chord of its distorted image over a segment of undistorted length $\ell_{\mathrm{seg}}$ starting at the vertex, and let $\underline J=\min\bigl(|1+k\rho^2|,|1+3k\rho^2|\bigr)$, the smaller singular value of the differential of the distortion at the vertex. If $3|k|(\rho+\ell_{\mathrm{seg}})\ell_{\mathrm{seg}}<\underline J$, each measured angle differs from the angle $\psi_i$ of the undistorted junction by at most
+\[
+\varphi=\arctan\frac{|1-\vartheta|}{2\sqrt\vartheta}+\arcsin\frac{3|k|(\rho+\ell_{\mathrm{seg}})\ell_{\mathrm{seg}}}{\underline J},
+\]
+and the certified set of \cref{M-prop:certified}, computed from the observed junction, contains $(1+k\rho^2)f$: the true focal length, scaled by the factor by which distortion moves the vertex away from the principal point.
+\end{corollary}
+\begin{proof}
+By \cref{prop:distortion}, the tangent angles satisfy $\tan\psi'_i=\vartheta\tan\psi_i$, and over all $\psi$ the difference $|\arctan(\vartheta t)-\arctan t|$, with $t=\tan\psi$, is largest at $t=1/\sqrt\vartheta$, where it equals the first term. For the chord, write $D(\boldsymbol\chi)=\boldsymbol\chi(1+k\|\boldsymbol\chi\|^2)$ and let $\mathbf u$ be the unit direction of the undistorted edge from the vertex $\mathbf c$. The second derivative of $D$ along $\mathbf u$ is $k\bigl(2\boldsymbol\chi+4(\boldsymbol\chi\cdot\mathbf u)\mathbf u\bigr)$, of norm at most $6|k|\|\boldsymbol\chi\|\le6|k|(\rho+\ell_{\mathrm{seg}})$ on the segment, so the chord $D(\mathbf c+\ell_{\mathrm{seg}}\mathbf u)-D(\mathbf c)$ differs from $\ell_{\mathrm{seg}}\,DD(\mathbf c)\mathbf u$ by at most $3|k|(\rho+\ell_{\mathrm{seg}})\ell_{\mathrm{seg}}^2$, while $\|DD(\mathbf c)\mathbf u\|\ge\underline J$. The angle between the chord and the tangent is therefore at most the second term. The observed junction has radius $\rho'=\rho(1+k\rho^2)$ and angles within $\varphi$ of the $\psi_i$; by \cref{M-cor:similar}, rescaling the radius from $\rho$ to $\rho'$ multiplies both $\hat F$ and $\mathcal U$ by $(1+k\rho^2)^2$ as sets of $x$, and \cref{M-prop:certified} at radius $\rho$ places $f^2$ in the unscaled set.
+\end{proof}
+
+
+% ======================================================================
+
+\section{First-order noise analysis}\label{sec:Snoise}
+
+Real junctions come from noisy line fits, so their thresholds move. Two questions follow: how far, and how often the true focal length falls outside the measured admissible set.
+
+\begin{proposition}[First-order spread of a threshold]\label{prop:noise}
+Let each edge be observed as a segment of length $\ell_{\mathrm{seg}}$ starting at the junction, both of whose endpoints are perturbed independently by $\mathcal N(0,\sigma^2I)$, let each line be fitted through its two perturbed endpoints, and, as an idealization, let the junction itself be held at its true position, so that $\rho$ and the reference direction $(u,v)/\rho$ are exact and only the three directions $\psi_i$ are perturbed. Write $\hat x_{ij}$ and $\hat F$ for the threshold and the admissible set computed from the perturbed directions. If $\cos(\psi_i-\psi_j)\neq0$ and $\sin2\psi_i$, $\sin2\psi_j$ are not both zero, then as $\sigma\to0$
+\begin{equation}
+\begin{aligned}
+&\frac{\hat x_{ij}-x_{ij}}{\operatorname{sd}(x_{ij})}\longrightarrow\mathcal N(0,1)\ \ \text{in distribution},\\
+&\operatorname{sd}(x_{ij})=\frac{\sigma\rho^2\sqrt{\sin^2 2\psi_i+\sin^2 2\psi_j}}{\sqrt2\,\ell_{\mathrm{seg}}\,\cos^2(\psi_i-\psi_j)} .
+\end{aligned}
+\label{eq:sd}
+\end{equation}
+Moreover, for every $\sigma$, the true focal length is excluded only if one of the three forms changes sign at $f^2$:
+\begin{equation}
+\Pr\bigl(f\notin\hat F\bigr)\le\sum_{(i,j)}\Pr\Bigl(\bigl(\hat A_{ij}f^2+\hat e_i\hat e_j\bigr)\bigl(A_{ij}f^2+e_ie_j\bigr)\le0\Bigr).
+\label{eq:union}
+\end{equation}
+If instead the two angles of a pair are perturbed by independent $\mathcal N(0,\tau^2)$ errors, then for every $\tau$
+\begin{equation}
+\begin{aligned}
+&\Pr\bigl(\text{form $(i,j)$ changes sign at $f^2$}\bigr)\\
+&\qquad\le\exp\!\left(-\frac{\bigl(A_{ij}f^2+e_ie_j\bigr)^2}{2\tau^2\bigl(\sqrt2\,f^2+\rho^2\bigr)^2}\right),
+\end{aligned}
+\label{eq:rigorous}
+\end{equation}
+and to first order the endpoint model is this one with $\tau=\sqrt2\,\sigma/\ell_{\mathrm{seg}}$.
+\end{proposition}
+\begin{proof}
+The direction of a segment of length $\ell_{\mathrm{seg}}$ whose endpoints are displaced by $\sigma\mathbf a$ and $\sigma\mathbf b$ turns through $\sigma(\mathbf b-\mathbf a)\cdot\mathbf e_{\perp}/\ell_{\mathrm{seg}}+O(\sigma^2)$, where $\mathbf e_{\perp}$ is the unit normal to the segment; so $\hat\psi_i=\psi_i+\sigma\xi_i/\ell_{\mathrm{seg}}+O(\sigma^2)$ almost surely, with $\xi_1,\xi_2,\xi_3$ independent $\mathcal N(0,2)$. By \eqref{M-eq:thresh} the threshold is a differentiable function of $(\psi_i,\psi_j)$ where $\cos(\psi_i-\psi_j)\neq0$, with $\partial x_{ij}/\partial\psi_i=-\rho^2\sin2\psi_j/(2\cos^2(\psi_i-\psi_j))$ and symmetrically in $j$, and \eqref{eq:sd} is the delta method, the gradient being nonzero by hypothesis. For \eqref{eq:union}, $f\in\hat F$ exactly when the product $\hat L(f^2)$ of the three perturbed forms is negative; if none of the three changes sign at $f^2$, that product has the sign of $L(f^2)$, which is negative because $f\in F$.
+ For \eqref{eq:rigorous}, write the form as $\Phi_{ij}(\psi_i,\psi_j)=\cos(\psi_i-\psi_j)f^2+\rho^2\sin\psi_i\sin\psi_j$. Its gradient is the sum of $f^2\sin(\psi_i-\psi_j)(-1,1)$, of norm at most $\sqrt2 f^2$, and $\rho^2(\cos\psi_i\sin\psi_j,\sin\psi_i\cos\psi_j)$, whose squared norm is $\rho^4\bigl(\sin^2(\psi_i+\psi_j)+\sin^2(\psi_i-\psi_j)\bigr)/2\le\rho^4$; so $\Phi_{ij}$ is Lipschitz with constant $L=\sqrt2 f^2+\rho^2$. A sign change needs $|\Phi_{ij}(\psi+\xi)-\Phi_{ij}(\psi)|\ge|\Phi_{ij}(\psi)|$, hence $\|\xi\|\ge|\Phi_{ij}(\psi)|/L$, and the norm of $\xi\sim\mathcal N(0,\tau^2I_2)$ has the Rayleigh tail $\Pr(\|\xi\|\ge t)=e^{-t^2/(2\tau^2)}$.\end{proof}
+
+Because $\hat x_{ij}$ has heavy tails and no finite moments, $\operatorname{sd}(x_{ij})$ is a first-order scale rather than a standard deviation, and it describes the threshold, not the decision. The distinction matters near a raw right angle: there the threshold and its scale both diverge, while the form $A_{ij}f^2+e_ie_j$ stays near $e_ie_j$, far from zero, so the decision whether $f$ is admitted remains stable even where the threshold is not. Linearizing each form itself in the three angles therefore gives the working formula
+\begin{equation}
+\begin{aligned}
+&\Pr\bigl(f\notin\hat F\bigr)\approx\sum_{(i,j)}\Phi\!\left(-\frac{|A_{ij}f^2+e_ie_j|}{s_{ij}}\right),\\
+&s_{ij}^2=\frac{2\sigma^2}{\ell_{\mathrm{seg}}^2}\bigl(\partial_i^2+\partial_j^2\bigr),
+\end{aligned}
+\label{eq:miss}
+\end{equation}
+where $\Phi$ is the standard normal distribution function and $\partial_i=-\sin(\psi_i-\psi_j)f^2+\rho^2\cos\psi_i\sin\psi_j$, $\partial_j=\sin(\psi_i-\psi_j)f^2+\rho^2\sin\psi_i\cos\psi_j$ are the derivatives of the form with respect to the two angles. This is an approximation, not a bound. Summed over the three pairs, \eqref{eq:rigorous} gives a bound valid at every noise level; in simulation it exceeded the true probability by a median factor of $5.5$ where that probability was above $1\%$. The Lipschitz constant $\sqrt2 f^2+\rho^2$ is attained for some angles, so the slack stems from replacing the set where the sign changes by a disc, not from the constant. Holding the junction fixed is an idealization; Sect.~S10 measures the effect of each.
+
+Three conclusions follow from \eqref{eq:sd}. First, the spread grows as $\rho^2$: the border junctions that give the tightest bounds (\cref{M-cor:similar}) are also the least certain, while the relative scale $\operatorname{sd}(x_{ij})/x_{ij}$ does not depend on $\rho$ at all. Second, the spread grows as $1/\cos^2(\psi_i-\psi_j)$, so the threshold of a pair close to a raw right angle in the image is unstable, although, by \eqref{eq:miss}, the pair's contribution to the decision is not. Third, the spread falls as $1/\ell_{\mathrm{seg}}$, so edge length buys accuracy linearly. Sect.~S10 checks \eqref{eq:sd} against a numerical gradient and \eqref{eq:miss} against Monte Carlo. These two formulas are what any use of the bound requires: \eqref{eq:miss} indicates which junctions to trust, and \eqref{eq:sd} supplies a per-junction weight, which the log-plausibility of Sect.~S8 uses and its consensus rule does not.
+
+\section{Combining bounds under noise}\label{sec:Scombine}
+
+This section collects the rules that combine the bounds of many junctions under noise. They are heuristics, not results of the article, and the article keeps only their conclusion.
+
+\subsection{The consensus and the log-plausibility}\label{sec:prior}
+
+Every junction that passes a loose classifier yields an admissible set from \cref{M-sec:bound}, including junctions with no visible parallel partner and junctions whose edges are too short to locate a vanishing point. Combining them over an image or a video gives a bound on $f$ with no line families and no calibration object, and a natural prior for a later bundle adjustment of $f$.
+
+Combining them by \emph{intersection}, however, does not survive noise, and the failure gets worse as evidence accumulates. By \cref{M-thm:interval} each corner yields one interval, so the intersection is again an interval and is trivial to compute. But it contains the true $f$ only if every one of the intervals does, and \cref{M-sec:e2} puts single-corner coverage at 97 to 98\% rather than 100\%. In \cref{sec:e6} the coverage of the intersection falls from $95\%$ at $2$ junctions to $25\%$ at $50$. A depth-$\kappa$ consensus, which keeps the set covered by at least $\kappa$ of the $M$ intervals and costs a sort of the endpoints, keeps the coverage at 96 to 100\% from $10$ junctions on at $\sigma=0.5$\,px, and 88 to 97\% at $\sigma=1$\,px, with $\kappa=\lceil0.9M\rceil$, as a binomial model of independent misses predicts (\cref{tab:combine}). 
+
+The consensus rule is a hard cut and a heuristic, however, and \cref{prop:noise} supplies what is needed to replace it. For a candidate $x=f^2$ and a junction with thresholds $x_{ij}$ and spreads $\operatorname{sd}(x_{ij})$, the probability that the form of pair $(i,j)$ carries the wrong sign at $x$ is $\epsilon_{ij}=\Phi(-|x-x_{ij}|/\operatorname{sd}(x_{ij}))$, where $\Phi$ is the standard normal distribution function. Admissibility is a \emph{parity} condition, an odd number of negative forms, so the observed verdict is correct exactly when an even number of signs have flipped. If the three flips are treated as independent (an approximation, since the forms share the angles $\psi_i$), then $\Pr(\text{even})=\tfrac12(1+\prod_{(i,j)}(1-2\epsilon_{ij}))$. Writing $\varsigma=\operatorname{sgn}\prod_{(i,j)}(A_{ij}x+e_ie_j)$ for the sign of the observed product, the probability that the junction really is admissible at $x$ is
+\begin{equation}
+\pi(x)=\tfrac12\Bigl(1-\varsigma\textstyle\prod_{(i,j)}\bigl(1-2\epsilon_{ij}(x)\bigr)\Bigr),
+\label{eq:pi}
+\end{equation}
+and $M$ junctions give the log-plausibility $\Lambda(x)=\sum_m\log\pi_m(x)$, summed over the junctions $m$; it is a plug-in score, not a likelihood of the data. Its maximizer is a point estimate rather than a set, and a finite maximizer exists only if some junction is bounded above: otherwise $\Lambda$ increases toward its supremum as $x\to\infty$. In the simulations the maximizer is sought on a grid from $(0.3f)^2$ to $(3f)^2$. Here $\epsilon_{ij}$ uses the threshold scale \eqref{eq:sd}. On the same junction samples, $100$ trials per setting, the form-based scale of \eqref{eq:miss} leaves the maximizer's median error unchanged at $\sigma=0.5$\,px ($2.8\%$ and $2.7\%$ at $50$ junctions) and reduces it markedly at $\sigma=2$\,px, from $18.2\%$ to $11.9\%$ at $10$ junctions and from $8.0\%$ to $4.2\%$ at $50$; the form-based scale is the one to use, and \cref{tab:lowcount} uses it. \Cref{tab:lowcount} reports its accuracy. The parity matters: it is what ties $\Lambda$ to the sign condition, since the margins $|x-x_{ij}|$ alone do not say on which side of each threshold the admissible set lies.
+
+
+
+% ======================================================================
+
+\paragraph{Consensus sets.} The depth-$\kappa$ consensus need not be a single interval.
+
+\begin{lemma}\label{lem:Sdepth}
+Let $M$ intervals be given and $\kappa>M/2$. The set covered by at least $\kappa$ of them is a finite union of intervals, which need not be connected, and its hull is contained in the set covered by at least $2\kappa-M$ of them.
+\end{lemma}
+\begin{proof}
+Let $x<y<z$, with $x$ and $z$ each covered by at least $\kappa$ intervals. At most $M-\kappa$ intervals miss $x$ and at most $M-\kappa$ miss $z$, so at least $2\kappa-M$ contain both, and each of these contains $y$. For a disconnected example, take $M\ge3$, $\kappa=M-1$, one interval $[0,1]$, one interval $[2,3]$ and $M-2$ copies of $[0,3]$: the points $1/2$ and $5/2$ are covered $M-1$ times and $3/2$ only $M-2$ times.
+\end{proof}
+
+In the simulations below, the coverage reported is that of the set itself, and its lower and upper ends are those of its hull, which by the lemma lies at depth at least $2\kappa-M$, about $0.8M$. The set was never disconnected at $M=2$ and $5$; at $M=10$, $25$ and $50$ it was disconnected in $5\%$, $11\%$ and $4\%$ of trials at $\sigma=0.5$\,px, and in $6\%$, $19\%$ and $19\%$ at $\sigma=1$\,px.
+
+\paragraph{Independence of the flips.} The three flips are not independent: the forms of the pairs $(1,2)$ and $(2,3)$ share the error of edge $2$, with covariance $\tau^2\,\partial_{\psi_2}\Phi_{12}\,\partial_{\psi_2}\Phi_{23}$ to first order. By inclusion and exclusion, the probability of an odd number of flips is $\sum p_i-2\sum_{i<j}p_{ij}+4p_{123}$, with $p_{ij}$ and $p_{123}$ the joint flip probabilities, and its independent version replaces each joint probability by the product of the marginals. Each joint probability and each product lies between $0$ and the smaller of the marginals involved, so the two differ by at most $8p_{(1)}+2p_{(2)}$, where $p_{(1)}\le p_{(2)}$ are the two smallest flip probabilities: independence matters only where two forms are near zero at once. Over $600$ random junctions at $\sigma=1$\,px the difference from the exact correlated value was at most $0.0018$.
+
+\subsection{Simulations}\label{sec:e6}
+Corners of one scene are drawn at $60^\circ$ and their admissible sets combined, 400 trials per setting. The strict intersection is compared with the depth-$\kappa$ consensus of \cref{sec:prior} at $\kappa=\lceil 0.9M\rceil$ (\cref{tab:combine}).
+
+\begin{table*}[t]
+\centering\small
+\caption{Combining the bounds of $M$ junctions seen by one camera at $60^\circ$, each from its own random frame, $400$ trials per setting. The consensus is the set covered by at least $\kappa=\lceil0.9M\rceil$ of the $M$ intervals; at $M=2$ and $5$, $\kappa=M$ and it is the intersection. The binomial prediction assumes independent misses at the single-junction rate. Lower and upper ends are medians over all trials}
+\label{tab:combine}
+\begin{tabular}{lccccc}
+\toprule
+junctions $M$ & 2 & 5 & 10 & 25 & 50\\
+\midrule
+intersection, coverage of true $f$, $\sigma=0.5$\,px & 95\% & 89\% & 75\% & 50\% & 25\%\\
+consensus, coverage, $\sigma=0.5$\,px & 95\% & 89\% & 96\% & 98\% & 100\%\\
+binomial prediction for the consensus, $\sigma=0.5$\,px & 95\% & 88\% & 98\% & 98\% & 100\%\\
+consensus, lower end, $/f$, $\sigma=0.5$\,px & 0.57 & 0.76 & 0.71 & 0.81 & 0.80\\
+consensus bounded above, $\sigma=0.5$\,px & 34\% & 62\% & 60\% & 88\% & 96\%\\
+consensus, upper end, $/f$, $\sigma=0.5$\,px & $\infty$ & 1.72 & 2.26 & 1.41 & 1.40\\
+intersection, coverage, $\sigma=1$\,px & 93\% & 76\% & 57\% & 30\% & 8\%\\
+consensus, coverage, $\sigma=1$\,px & 93\% & 76\% & 94\% & 88\% & 97\%\\
+binomial prediction for the consensus, $\sigma=1$\,px & 92\% & 80\% & 93\% & 91\% & 98\%\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The intersection degrades monotonically in the number of corners, as the argument in \cref{sec:prior} predicts, while the coverage of the consensus stays at 96 to 100\% from $10$ junctions on at $\sigma=0.5$\,px. At small $M$ the two coincide because $\lceil 0.9M\rceil=M$.
+
+ The log-plausibility \eqref{eq:pi} gives a point estimator on data of the same kind. \Cref{tab:lowcount} gives the error of its maximizer at the numbers of junctions a real image supplies ($1.8$ full junctions per image in \cref{sec:e4}) and at larger numbers. The consensus interval is no substitute: it is a set, often unbounded above, and the midpoint of such an interval is set largely by where it is clipped.
+
+\begin{table*}[t]
+\centering\footnotesize
+\caption{The bound and the log-plausibility estimator at the numbers of junctions a real image supplies, at a $60^\circ$ field of view, $200$ trials per setting. Errors are median relative errors in $f$ of the maximizer of $\Lambda$ with the form-based scale of \eqref{eq:miss}, with bootstrap $95\%$ intervals; the maximizer is sought on a grid from $0.3f$ to $3f$, which dominates the error at $M\le3$}
+\label{tab:lowcount}
+\begin{tabular}{lccccccc}
+\toprule
+junctions $M$ & 1 & 2 & 3 & 5 & 10 & 20 & 50\\
+\midrule
+intersection bounded, nonempty, $\sigma=0.5$\,px & 20\% & 29\% & 49\% & 64\% & 82\% & 78\% & 44\%\\
+intersection empty, $\sigma=0.5$\,px & 0\% & 1\% & 1\% & 0\% & 5\% & 21\% & 56\%\\
+its median width, $/f$ & 0.69 & 0.79 & 0.60 & 0.49 & 0.39 & 0.19 & 0.06\\
+error of the maximizer of $\Lambda$, $\sigma=0.5$\,px & 68\% & 37\% & 33\% & 16\% & 8.5\% & 5.2\% & 2.6\%\\
+\quad 95\% interval & 64--70 & 33--42 & 24--41 & 12--22 & 7.5--11 & 4.3--6.1 & 2.0--2.9\\
+error of the maximizer of $\Lambda$, $\sigma=2$\,px & 68\% & 52\% & 34\% & 23\% & 14\% & 7.4\% & 5.1\%\\
+\quad 95\% interval & 61--70 & 40--64 & 30--41 & 18--26 & 11--16 & 6.5--8.6 & 4.2--5.7\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\Cref{tab:lowcount} shows the sharpest practical limitation of the method: one junction is nearly useless as an estimator of $f$, two or three are weak, and the maximizer's error falls below 10\% only at about ten to twenty. At $1.8$ junctions per image that means roughly six to eleven images taken with the same camera, not one; they need not show the same scene. The bound is therefore a constraint to carry into a larger estimation problem, or an accumulator over a video, rather than a single-image calibrator. The identifiability of \cref{M-thm:identframe} concerns junctions spread over the whole image and should not be read as a claim about one image.
+
+\section{Junctions placed at random}\label{sec:Srandomall}
+
+\subsection{Random edge directions}\label{sec:Srandom}
+
+The interval of \cref{M-thm:interval} can be empty, a half-line or bounded. For junctions whose edges point in random directions, the three cases have simple probabilities.
+
+\begin{proposition}[Random junctions]\label{prop:random}
+If the three half-edge directions of a junction with $\rho>0$ are independent and uniformly distributed, then $F$ is empty with probability $1/2$, a half-line $(f_{ij},\infty)$ with probability $1/4$, and a bounded interval with probability $1/4$.
+\end{proposition}
+\begin{proof}
+The angles $\psi_i$ are then independent and uniform, so the $\tau_i=\cot\psi_i$ are independent standard Cauchy variables. Their signs are independent fair coins, independent of the magnitudes $|\tau_i|$, and $|\tau_i|$ has the same distribution as $1/|\tau_i|$, since $\psi\mapsto\pi/2-\psi$ exchanges $\cot$ and $\tan$. A pair is in $S$ exactly when $\tau_i\tau_j<-1$. If the three signs agree, no product is negative and $S$ is empty; this has probability $1/4$. Otherwise exactly one $\tau_k$ has the minority sign, with probability $3/4$, and only the two pairs containing $k$ can be in $S$: $(i,k)\in S$ exactly when $|\tau_i|>W$, with $W=1/|\tau_k|$. The variables $|\tau_i|$, $|\tau_j|$ and $W$ are independent and identically distributed, so $W$ is the largest, the middle or the smallest of the three with probability $1/3$ each, and $|S|$ is $0$, $1$ or $2$ accordingly. Hence $|S|=0$ with probability $1/4+\tfrac34\cdot\tfrac13=1/2$, and $|S|=1$ and $|S|=2$ each with probability $\tfrac34\cdot\tfrac13=1/4$; \cref{M-thm:interval} turns $|S|$ into the shape of $F$.
+\end{proof}
+
+The camera-free test therefore rejects exactly half of all junctions whose edges point in independent uniform directions. Junctions of real corners are not of this kind, and the test accepts nearly all of them (\cref{sec:e4}).
+
+\subsection{Rates for random vertex positions}\label{sec:Srate}
+
+This section collects the rates at which junctions placed at random over the image close the bounds of \cref{M-thm:identframe}. They rest on a model of where junctions lie, independent and spread over the whole image, that real corners do not follow: on York Urban they avoid the neighborhoods of the edge-on lines (\cref{sec:e4}). The article therefore states only the deterministic results, and the rates are given here.
+
+\begin{proposition}[Rate of identifiability]\label{prop:rate}
+Under the hypotheses of \cref{M-thm:identframe}, let the image contain no vanishing point, except in part (3), and let $M$ junctions of the frame have vertices drawn independently with a density bounded above and below by positive constants on the image. Let $W_M$ be the width of $\bigcap F$, in units of $f$.
+\begin{enumerate}
+\item If the edge-on line of a tilted axis meets the image in a segment, whether by passing through its interior or by containing one of its edges, $W_M$ is of exact order $1/M$: for every $\varepsilon>0$ there are constants $0<c<C$ with $\Pr(c/M\le W_M\le C/M)\ge1-\varepsilon$ for all large $M$; we then say that $W_M$ is of \emph{exact order} $1/M$. Moreover $W_M$ is nonincreasing in $M$, and for an infinite sequence of junctions, almost surely $c'/(M\log^2M)\le W_M\le C'\log M/M$ for all large $M$; in particular $W_M\to0$ almost surely.
+\item If such lines meet the image only at its corners, at least one of which is not the point $\vc^{\star}_k$ of its line, $W_M$ is of exact order $1/\sqrt M$ in the same sense.
+\item If a vanishing point $\vv_a$ lies in the interior of the image and the other two axes are tilted, $W_M$ is of exact order $1/(M\log M)$ in the same sense.
+\item (Limit law.) Under the hypotheses of (1), let the vertices have a continuous density $p$ on $\mathcal I$, and let no edge-on line contain an edge of $\mathcal I$. For each axis $k$ whose edge-on line passes through $\mathcal I$, parameterize $\ell_k$ by the signed distance $\varsigma$ from $\vc^{\star}_k$, in pixels, and let $r_k=|\zeta_i/\zeta_j|$ along it. With
+\[
+\chi=\sum_k|z_k|\int_{\ell_k\cap \mathcal I}p\,|\varsigma|\Bigl(r_k+\frac1{r_k}\Bigr)d\varsigma ,
+\]
+$y\Pr(\pm\gamma>y)\to\chi$ for both signs, and $M(f_{\max}/f-1)$ and $M(1-f_{\min}/f)$, where $f_{\min}$ and $f_{\max}$ are the ends of $\bigcap F$, each converge in distribution to the exponential law with rate $2\chi$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+By \eqref{M-eq:capF}, in the variable $s^2$ the width is $1/(\Gamma^{+}_M-1)+1/(1+\Gamma^{-}_M)$ once $\Gamma^{+}_M>1$, where $\Gamma^{\pm}_M$ are the largest values of $\pm \gamma$ among the $M$ junctions, so it suffices to show that $\Gamma^{\pm}_M$ are of exact order $M$, or $\sqrt M$. This is a statement about the tails of $\gamma$ at a random junction. (1) Away from the edge-on lines of tilted axes $\gamma$ is bounded, and near such a line $\ell_k$ the expansion in the proof of \cref{M-thm:identframe} gives $|\gamma|\le C_1/|\zeta_k|+C_2$, because $\zeta_i$ and $\zeta_j$ are bounded and, the image containing no vanishing point, bounded away from zero. The set $\{|\gamma|>y\}$ therefore lies in bands of width $O(1/y)$ about those lines, and $\Pr(|\gamma|>y)\le\chi_2/y$. Conversely, on a segment of $\ell_k$ in the image and away from $\vc^{\star}_k$ the coefficient $\zeta_i^2z_k(w_i-w_j)$ is bounded away from zero, so on each side of the segment that lies in the image one of $\gamma_i$, $\gamma_j$ exceeds $c_1/|\zeta_k|-C_2$ and the other is below its negative; hence $\Pr(\gamma>y)\ge\chi_1/y$ and $\Pr(\gamma<-y)\ge\chi_1/y$ for large $y$. It follows that
+\[
+\begin{aligned}
+\Pr\bigl(\Gamma^{\pm}_M\le\delta M\bigr)&\le\Bigl(1-\frac{\chi_1}{\delta M}\Bigr)^{M}\le e^{-\chi_1/\delta},\\
+\Pr\bigl(\Gamma^{\pm}_M>M/\delta\bigr)&\le M\cdot\frac{\chi_2\delta}{M}=\chi_2\delta ,
+\end{aligned}
+\]
+and taking $\delta$ small gives the claim. For the almost-sure statement, $W_M$ is nonincreasing because $\bigcap F$ only shrinks as junctions are added, and $\Gamma^{\pm}_M$ is nondecreasing. With $y=\chi_1M/(2\log M)$, $\Pr(\Gamma^{\pm}_M\le y)\le(1-\chi_1/y)^M\le e^{-\chi_1M/y}=M^{-2}$, which is summable, so by the Borel--Cantelli lemma $\Gamma^{\pm}_M>\chi_1M/(2\log M)$ for all large $M$, almost surely, and the width $1/(\Gamma^+_M-1)+1/(1+\Gamma^-_M)$ is at most $C'\log M/M$. In the other direction, $\Pr(\Gamma^+_{2^n}>2^nn^2)\le2^n\chi_2/(2^nn^2)=\chi_2/n^2$, which is summable, so $\Gamma^+_{2^n}\le2^nn^2$ for all large $n$; for $2^{n-1}<M\le2^n$, monotonicity gives $\Gamma^+_M\le2^nn^2\le2M\log_2^2(2M)$, and the width is at least $1/(\Gamma^+_M-1)\ge c'/(M\log^2M)$. (2) Near a corner of the image at which an edge-on line touches it, the vertices of the junctions lie in a wedge, in which the set $\{|\zeta_k|<1/y\}$ has area of exact order $1/y^2$. At a corner that is the point $\vc^{\star}_k$ of its line $\gamma$ is bounded, by the proof of \cref{M-thm:identframe}; at any other, the expansion there gives $\chi_1/y^2\le\Pr(\pm \gamma>y)\le\chi_2/y^2$ for large $y$. Hence $\Pr(\Gamma^{\pm}_M\le\delta\sqrt M)\le e^{-\chi_1/\delta^2}$ and $\Pr(\Gamma^{\pm}_M>\sqrt M/\delta)\le\chi_2\delta^2$, and $\Gamma^{\pm}_M$ is of exact order $\sqrt M$.
+(3) The coordinates $\zeta_b$ are affine functions of the image point, so near $\vv_a$ the pair $(u,v)=(\zeta_p,\zeta_q)$ is an affine coordinate system centered at $\vv_a$, in which the image contains the square $|u|,|v|<\eta$ for some $\eta>0$, and $\zeta_a$ stays between $\zeta_0/2$ and $2\zeta_0$ for some $\zeta_0\neq0$. There
+\[
+\gamma_a=\frac{c}{uv}-z_a\zeta_a\Bigl(\frac{z_p}{u}+\frac{z_q}{v}\Bigr)+z_a^2,\qquad c=\zeta_a^2z_pz_q\neq0,
+\]
+so that $|\gamma_a-c/(uv)|\le C(1/|u|+1/|v|)+C$ for a constant $C$. For the upper bound, $|\gamma_a|>y$ with $y>3C$ forces $|uv|<3|c|/y$, $|u|<3C/y$ or $|v|<3C/y$, sets of area $O((\log y)/y)$, $O(1/y)$ and $O(1/y)$ in the square; $\gamma_p$ and $\gamma_q$ obey the same bound, and away from $\vv_a$ the tails are $O(1/y)$ by part (1). For the lower bound, take $a=|c|/4$ and $b=2C$ and the quadrant in which $uv$ has the sign of $\pm c$, which lies in the image because $\vv_a$ is interior. On its subset $\{b/y\le|u|,|v|\le\eta,\ |uv|\le a/y\}$, the main term has modulus at least $4y$ and the rest at most $y+C$, so $\pm\gamma_a>y$ for $y\ge C$; and the subset has area $(a/y)\log(ay/b^2)-O(1/y)$ for large $y$. Hence $\Pr(\pm\gamma>y)$ is of exact order $(\log y)/y$. In the argument of part (1), with $y=\delta M\log M$, $\Pr(\Gamma^{\pm}_M\le\delta M\log M)\le(1-\chi_1\log y/y)^M\le e^{-\chi_1/(2\delta)}$ for large $M$, and with $y=M\log M/\delta$, $\Pr(\Gamma^{\pm}_M>M\log M/\delta)\le M\chi_2\log y/y\le2\chi_2\delta$; so $\Gamma^{\pm}_M$ is of exact order $M\log M$.
+ (4) is proved in \cref{app:limit}.\end{proof}
+
+The statement is in probability because $W_M$ has no finite expectation: with a small but positive probability no junction among the $M$ is bounded above, and the width is then infinite. Part (4) makes the rate concrete: for the frame seen down a cube diagonal at a $70^\circ$ field of view, $\chi=0.234$, and over $400$ runs of $20\,000$ uniform junctions $M(f_{\max}/f-1)$ had mean $2.10$ and median $1.51$, against $1/(2\chi)=2.14$ and $\ln2/(2\chi)=1.48$; for an oblique frame at $75^\circ$, $\chi=0.567$ and the means were $0.90$ against $0.88$. A vanishing point inside the image speeds the bounds up by a logarithmic factor, part (3): in simulation, with one vanishing point inside the image and both other axes tilted, $y\Pr(\gamma>y)$ grew linearly in $\log y$, from $1.04$ at $y=10^2$ to $2.00$ at $y=10^5$.
+
+All of the forcing, and these rates, come from junctions close to an edge-on line, where two of a junction's edges are nearly collinear in the image. A detector that discards junctions whose smallest angle is below some $\alpha_{\min}$, and noise of scale $\sigma$ on edges of length $\ell_{\mathrm{seg}}$, remove exactly these, so in practice the width stops shrinking at a level set by $\max(\alpha_{\min},\sigma/\ell_{\mathrm{seg}})$; the identifiability results describe noiseless junctions.
+
+\subsubsection{Proof of the limit law}\label{app:limit}
+
+This subsection proves \cref{prop:rate}(4). Fix an axis $k$ whose edge-on line $\ell_k$ passes through $\mathcal I$, and write $i$ and $j$ for the other two. No vanishing point lies in $\mathcal I$, so the other edge-on lines keep a positive distance from $\ell_k\cap \mathcal I$; and no edge-on line contains an edge of $\mathcal I$, so near each interior point of the segment $\ell_k\cap \mathcal I$ both sides of $\ell_k$ lie in $\mathcal I$. Use coordinates $(\varsigma,\delta)$, with $\varsigma$ the signed distance along $\ell_k$ from $\vc^{\star}_k$ and $\delta$ the signed distance from $\ell_k$, both in pixels.
+
+\emph{Step 1: the exact form near $\ell_k$.} By \cref{M-thm:boundmap}, $\gamma_i=g_i\,\varsigma/\delta$ and $\gamma_j=g_j\,\varsigma/\delta$, with $g_i=-R_j/\ell_j$ and $g_j=-R_i/\ell_i$, because $R_k/\ell_k=\varsigma/\delta$ exactly: $R_k$ is the perpendicular to $\ell_k$ through $\vc^{\star}_k$, and both have normals of length $|\bar\vd_k|/f$. Choose $\eta>0$ so small that $\ell_i$ and $\ell_j$ do not vanish on $N_\eta=\{|\delta|<\eta\}\cap \mathcal I$. There $g_i$ and $g_j$ are smooth, with $|g|\le G$ and $|\partial_\delta g|\le L$, and $\gamma_k$ is bounded, say by $B$. On $\ell_k$, $g_ig_j=-z_k^2$ (proof of \cref{M-thm:identframe}), with $|g_i|=|z_k|r_k$ and $|g_j|=|z_k|/r_k$; shrinking $\eta$, $g_ig_j<0$ on all of $N_\eta$.
+
+\emph{Step 2: the set where $\gamma$ is large.} Let $y>\max(B,1)$ and fix $\varsigma\neq0$. Then $\gamma_i>y$ requires $\delta$ to have the sign of $\varsigma g_i$ and $|\delta|<|\varsigma||g_i(\varsigma,\delta)|/y$. Since $|\varsigma||g_i(\varsigma,\delta)|/y-|\delta|$ decreases in $|\delta|$ once $y>L\sup|\varsigma|$, the $\delta$-section of $\{\gamma_i>y\}$ is an interval from $0$ to $|\varsigma|\bigl(|g_i(\varsigma,0)|+O(1/y)\bigr)/y$, uniformly in $\varsigma$. On that side $\gamma_j<0$, and on the other side the roles of $i$ and $j$ are exchanged, so the section of $\{\gamma^+>y\}\cap N_\eta$ has total length
+\[
+\begin{aligned}
+&\frac{|\varsigma|\bigl(|g_i|+|g_j|\bigr)(\varsigma,0)}{y}+O\!\left(\frac1{y^2}\right)\\
+&\qquad=\frac{|z_k||\varsigma|\,(r_k+1/r_k)}{y}+O\!\left(\frac1{y^2}\right).
+\end{aligned}
+\]
+The sections lie in $\mathcal I$ except for $\varsigma$ within $O(1/y)$ of the two ends of the segment, which changes the area by $O(1/y^2)$.
+
+\emph{Step 3: the tail.} The density $p$ is continuous, so it differs from $p(\varsigma,0)$ by $o(1)$, uniformly, on sections of length $O(1/y)$, and
+\[
+\begin{aligned}
+&\Pr\bigl(\gamma^+>y,\ \vc\in N_\eta\bigr)\\
+&\quad=\frac1y\int p(\varsigma,0)\,|z_k||\varsigma|\Bigl(r_k+\frac1{r_k}\Bigr)d\varsigma+o\!\left(\frac1y\right).
+\end{aligned}
+\]
+Outside the sets $N_\eta$ of the lines that pass through $\mathcal I$, $\gamma$ is bounded except near lines that only touch $\mathcal I$, where $\Pr(|\gamma|>y)=O(1/y^2)$ by part (2). Summing over $k$ gives $y\Pr(\gamma^+>y)\to\chi$, and the same holds for $-\gamma$, the two sides of each line exchanging roles.
+
+\emph{Step 4: the extremes.} The junctions are independent, so for every $y>0$, $\Pr(\Gamma^+_M\le My)=\bigl(1-\Pr(\gamma^+>My)\bigr)^M\to e^{-\chi/y}$; that is, $M/\Gamma^+_M$ converges in distribution to the exponential law with rate $\chi$, and so does $M/\Gamma^-_M$. By \eqref{M-eq:capF}, $f_{\max}/f=\bigl(\Gamma^+_M/(\Gamma^+_M-1)\bigr)^{1/2}=1+1/(2\Gamma^+_M)+O\bigl((\Gamma^+_M)^{-2}\bigr)$, so $M(f_{\max}/f-1)=M/(2\Gamma^+_M)+O_p(1/M)$, which converges to half an exponential variable of rate $\chi$, that is, to the exponential law with rate $2\chi$; the same argument applies to $1-f_{\min}/f$. Only the two laws separately are claimed: $\Gamma^+_M$ and $\Gamma^-_M$ are driven by the same junctions near the edge-on lines and are not independent.
+
+\subsubsection{Simulations}
+Over $24$ random frames at a $70^\circ$ field of view, the median width of $\bigcap F$ fell from $0.18f$ at $20$ noiseless junctions to $9.4\times10^{-5}f$ at $20\,000$, with a least-squares log-log slope of $-0.981$ over $200$ to $20\,000$ junctions, against the $-1$ of \cref{prop:rate}.
+
+The frame seen down a cube diagonal shows that \cref{M-thm:identframe} is sharp (\cref{fig:transition}). The first of its vanishing lines to reach the sampled square (half-width $480$\,px) does so at $f=960$\,px, a $55.0^\circ$ field of view for the $1000$\,px image, and reaches it at the line's exceptional point. Over $30$ replicates per size, the median width at $54^\circ$, below the transition, stays at $0.61f$, $0.55f$ and $0.54f$ at $10^3$, $3\times10^4$ and $3\times10^5$ junctions, a log-log slope of $-0.01$; at $56^\circ$, $58^\circ$, $60^\circ$, $65^\circ$ and $70^\circ$ it falls with least-squares slopes of $-0.92$, $-1.01$, $-0.91$, $-1.03$ and $-1.13$ between $3\times10^4$ and $3\times10^5$ junctions, each $95\%$ bootstrap interval containing $-1$ (Sect.~S11). At the transition itself the width stalls at $0.46f$ over $2\times10^{6}$ junctions. Rotating the frame by $12^\circ$ about the optical axis moves the exceptional point off the corner: the line then first touches the image at $f=939$\,px, and the width falls with a least-squares log-log slope of $-0.52$ over $3\times10^{4}$ to $2\times10^{6}$ junctions, against $-0.99$ once the line passes through the image, as \cref{prop:rate} predicts. Sect.~S11 gives further runs.
+
+\part{Computation and experiments}
+
+\section{Protocol, noise model and identifiability}\label{sec:Sprotocol}
+
+\subsection{Protocol}
+
+Images are $1000\times1000$\,px with the principal point at the center, at fields of view of $40^\circ$, $60^\circ$ and $90^\circ$ ($f=1374$, $866$ and $500$\,px). Corners are sampled uniformly over orientations and over the image, at depths of 2 to 6 units. Each edge is observed as a $150$\,px segment starting at the junction, and both endpoints carry Gaussian noise of standard deviation $\sigma\in\{0,0.5,1,2\}$\,px. Each image line is fitted through its two noisy endpoints, and the junction point is the least-squares intersection of the three fitted lines. Each fitted line is then translated, with its direction kept, to pass through the estimated junction, so that every interpretation plane contains the ray, as the derivation requires; this changes the coverage figures of \cref{M-sec:e2} by at most $0.1$ percentage point. Where corners are binned by position, the binning variable is the distance from the principal point normalized by the image half-width, so that the inner third is $\rho<167$\,px and the outer third $\rho>333$\,px. The code and its random seeds are supplied (see the Declarations), and Sect.~S11 reports the numerical checks of the proved results.
+
+\Cref{fig:boundmirror} shows the lower bound of the article's \cref{M-sec:e2} against the distance from the center, in units of $f$ and of $\rho$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig5_bound_mirror.pdf}
+\caption{(a) Median lower bound $\fmin/f$ from one corner against the corner's distance from the principal point in units of the image half-width, at three fields of view, with bootstrap 95\% intervals on the median ($3000$ corners per field of view, a larger sample than that of \cref{M-sec:e2}, $\sigma=0.5$\,px); the shaded bands are the inner and outer thirds used in \cref{M-sec:e2}, and corners farther than one half-width, toward the image's corners, are omitted. (b) The same lower bounds in units of the corner's distance $\rho$, which vary far less with position than in (a), as \cref{M-cor:similar} predicts.}
+\label{fig:boundmirror}
+\end{figure}
+
+\subsection{Robustness of the bound}
+
+The bound is robust to the idealizations of the protocol: coverage stays above $96\%$ with the principal point off by up to $20$\,px and falls to $94\%$ at $40$\,px; it falls to $89\%$ with $20$\,px edges; and tilting the vertical as in York Urban changes neither the coverage nor the share of junctions bounded above (Sect.~S13).
+
+\paragraph{A misplaced principal point.} The focal-length results assume the principal point known, and in practice it is usually taken as the image center. To measure the cost of an error in it, the junctions of the protocol were measured relative to an assumed principal point offset from the true one by $0$, $5$, $10$, $20$ and $40$\,px in a random direction, with the endpoint noise of $0.5$\,px on $150$\,px edges modeled as angle noise, over $1000$ corners per field of view. The admissible set contained the true focal length for $96$, $97$, $96$, $98$ and $96\%$ of corners at $40^\circ$, for $97$, $98$, $97$, $96$ and $94\%$ at $60^\circ$, and for $97$, $97$, $95$, $94$ and $89\%$ at $90^\circ$. An offset of up to $20$\,px therefore leaves the coverage essentially unchanged, and only a wide lens with an offset of $40$\,px loses a noticeable share. The script \texttt{pp\_offset.py} of Online Resource~2 regenerates these numbers.
+
+\subsection{The first-order noise model}\label{sec:e3}
+Two checks address \cref{prop:noise}. First, we compared the closed form \eqref{eq:sd} with the standard deviation obtained by differentiating the whole pipeline, from the twelve endpoint coordinates through the fitted lines and the estimated junction to the threshold. Over 468 thresholds, the ratio of the two has median $1.004$, with 10th and 90th percentiles $0.88$ and $1.07$; the junction's own uncertainty therefore contributes little, and the edge angles carry the error. Second, at a $60^\circ$ field of view, with $200$ perturbations of each of $600$ corners, the predicted miss probability \eqref{eq:miss} was $3.3\%$, $4.9\%$ and $8.3\%$ at $\sigma=0.5$, $1$ and $2$\,px, against $3.2\%$, $4.6\%$ and $7.9\%$ measured; the threshold-based approximation it replaces gave $3.7\%$, $5.5\%$ and $7.1\%$. This agreement is consistent with the coverage of 97 to 98\% in \cref{M-sec:e2} and of 98.9\% in \cref{sec:e4}.
+
+\subsection{Identifiability from the bounds alone}\label{sec:e5}
+The frame seen down a cube diagonal shows that \cref{M-thm:identframe} is sharp (\cref{fig:transition}). The first of its vanishing lines to reach the sampled square (half-width $480$\,px) does so at $f=960$\,px, a $55.0^\circ$ field of view for the $1000$\,px image, and it reaches the square at the line's exceptional point. Below the transition, the width of the intersection stops shrinking, at $0.54f$ over $3\times10^{5}$ junctions at $54^\circ$; at the transition itself it stalls at $0.46f$ over $2\times10^{6}$ junctions; above it, the width falls toward zero as junctions are added. How fast it falls for junctions placed at random is the subject of Sect.~S9, which also reports the replicated runs.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig9_transition.pdf}
+\caption{Width of the intersection of the admissible sets of $20\,000$ noiseless junctions against field of view, for a frame seen down a cube diagonal on a square image. At $36^\circ$ and $40^\circ$ the tightest upper bound exceeds $10^3f$ (triangles); from $44^\circ$ the intersection is bounded but stalls while no edge-on line passes through the image, and it falls once one does, above $55.0^\circ$ (\cref{M-thm:identframe})}
+\label{fig:transition}
+\end{figure}
+
+\section{Numerical checks of the proved results}\label{sec:Schecks}
+
+The results of the article are proved; the checks below test the statements, and the code that implements them, against direct computation. The protocol is that of \cref{M-sec:experiments} of the article unless stated.
+
+\paragraph{\Cref{M-thm:convex}.} A direct check over $2.25$ million sampled cameras, with all five entries of $K$ perturbed, found the predicted cell matching the admissible set exactly, with no admissible camera outside it and none inside it inadmissible. The criterion \eqref{M-eq:nuk} agreed with the definition in each of $200\,000$ further trials.
+
+\paragraph{\Cref{M-lem:frame} and \cref{M-thm:converse}.} \Cref{M-lem:frame} was checked against the definition on $100\,000$ random cameras, frames and junctions, with all five intrinsic parameters varied, without exception. For a camera tilted by $4^\circ$ whose horizontal vanishing points fall outside the image, only the horizon passes through it. There, with $N_{aa}=1$, an entry $N_{13}$ or $N_{23}$ of $10^{-3}$ makes some junction inadmissible, while $N_{12}$ ranges over $[-0.88,\,0.28]$, which is the interval the inequalities \eqref{M-eq:nuframe} give, at each of $301$ values tested. With $f=1440$\,px on a square image of side $960$\,px and a frame whose third vanishing line passes through one corner of the image and nowhere else, the other two missing it, the camera with $N_{aa}=1$, $N_{12}=0$, $N_{23}=0.2$ and $N_{13}$ fixed by \eqref{M-eq:touch} admitted all $600\,000$ junctions sampled, down to $10^{-9}$\,px from the corner, although the cosines between its vanishing points are $-0.14$ and $-0.20$; changing $N_{13}$ by $10^{-6}$ made junctions near the corner inadmissible. One frame accordingly determines a camera model with at most that many parameters. The single focal length needs one, and \cref{M-thm:identframe} says when it gets it. The aspect-ratio camera needs two, and is recovered from a single frame to $f_x\in[899.8,900.2]$ and $f_y\in[699.8,700.0]$ by $4000$ junctions. The general camera needs five, which one frame never supplies. From one frame its feasible region stayed frozen across $100$ to $6000$ junctions and reached degenerate cameras, with smallest eigenvalue near zero. After $4000$ junctions the feasible cameras made the cosine between vanishing-point directions $3.5\times10^{-4}$, against a median of $0.42$ for random cameras.
+
+\paragraph{\Cref{M-thm:frames}.} We checked both cases with the cutting-plane program of \cref{M-sec:program}. For two frames that differ by a rotation of $37^\circ$ about a common axis, each member tested of the family $K(I+t\,\vd\vd^{\top})K^{\top}$, with $t$ from $-0.6$ to $2$, admitted all $8000$ sampled junctions. The feasible region of $3000$ junctions stayed open, with a worst relative extent over the entries of $\omega^{*}$ of $43$. For two frames with no common axis, no member tested other than $t=0$ was admitted, and the extent fell from $0.81$ at $600$ junctions to $0.14$ at $3000$. The criterion of part (2) agreed with the rank of the linear conditions in each of $4000$ random sets of one to five axes, half of them constructed to be degenerate. With $f_x=900$, $f_y=700$, a skew of $15$ and a principal point of $(40,-30)$\,px, on a square image of side $960$\,px, three images at pitches of $4^\circ$, $11^\circ$ and $-7^\circ$, each showing only its horizon, admitted the camera with $t=0.2$ at every junction sampled; once the roll was varied as well, by $6^\circ$, $-5^\circ$ and $9^\circ$, none of the members tested was admitted.
+
+A touching axis adds one condition where a visible one adds two. Applied to the cameras $\operatorname{diag}(f',f',1)$, for which $\Xi=s^2I+(1-s^2)\hat{\mathbf z}\hat{\mathbf z}^{\top}$ with $s=f'/f$, the conditions of \cref{M-thm:frames} reproduce \cref{M-thm:identframe}, its exceptional point included. A visible axis $\vd$ is an eigenvector of this $\Xi$ only if $s=1$, unless $z=\vd\cdot\hat{\mathbf z}=0$ or $\vd=\pm\hat{\mathbf z}$. For a touching axis, $(\Xi\vd)\cdot(\vd\times\vr_0)=(1-s^2)\,z\,\hat{\mathbf z}\cdot(\vd\times\vr_0)$, which vanishes for $s\neq1$ only if $z=0$ or $\hat{\mathbf z}$, $\vd$ and $\vr_0$ are coplanar; since $\vr_0\perp\vd$, the last happens exactly when $\vr_0$ is proportional to $\hat{\mathbf z}-z\vd$, the ray of the point $\vc^{\star}_k$. The condition of part (1) agreed with \eqref{M-eq:touch} to rounding error in each of $3000$ random cases. At the level of junctions, with a longer focal length, $f_x=1800$\,px, so that a frame can have one vanishing line touching a corner of the image and the other two missing it, the three images of a camera that only pitches again admitted the family above; adding such a frame, whose axis satisfies $\mathbf n\cdot\vd\neq0$ and $\mathbf n\cdot(\vd\times\vr_0)\neq0$, removed it, the smallest $\nu_a$ near the corner being $-6\times10^{10}$ at $t=0.05$. For that frame alone, the cameras $K(I+t\,\hat\vr_0\hat\vr_0^{\top})K^{\top}$, which satisfy its condition, were admitted for $t$ up to $0.05$ and rejected only at $t=0.2$, while $K(I+t\,\mathbf e_1\mathbf e_1^{\top})K^{\top}$, which violates it, was rejected at every $t$ tested, down to $10^{-3}$.
+
+\paragraph{\Cref{M-prop:gform}.} Over $40$ random cameras and frames with $3000$ junctions each, \eqref{M-eq:capF} reproduced the intersection of the single-junction intervals of \cref{M-thm:interval} to $10^{-13}$ at both ends.
+
+\paragraph{\Cref{M-thm:fpp}.} The characterization agreed with the rank of the linearized conditions in each of $1500$ sets of axes covering all the configurations above. At the level of junctions, with $f=250$\,px so that all three vanishing lines of a frame with one axis parallel to the image plane are in view, the cameras of the family with $h=0.05$ and $0.12$ admitted every junction sampled, while changing the focal length alone by $5\%$ did not. An image at a pitch of $6^\circ$ showing only its horizon admitted its family, and adding a second at a pitch of $13^\circ$, again showing only its horizon, excluded it.
+
+\paragraph{Identifiability from the bounds alone.} Corners of one scene at $60^\circ$, noiseless, with their admissible sets intersected as they arrive. The intersection closes on the true focal length from both sides (\cref{tab:close}), as \cref{M-thm:identframe} predicts.
+
+\begin{table*}[t]
+\centering\small
+\caption{The intersection of the admissible sets of the corners of one scene, at $60^\circ$ and without noise, as corners accumulate}
+\label{tab:close}
+\begin{tabular}{lccccc}
+\toprule
+corners & 10 & 100 & 1000 & 5000 & 20000\\
+\midrule
+tightest lower bound $/f$ & 0.9826 & 0.9826 & 0.99960 & 0.99996 & 0.999962\\
+tightest upper bound $/f$ & 1.3932 & 1.0060 & 1.00015 & 1.00015 & 1.000020\\
+relative width            & 0.411  & 0.0234 & 0.00055 & 0.00019 & 0.000058\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Holding the Manhattan frame fixed and varying only the corner's position in the image, $40\,000$ corners give $[0.999965,\,1.000028]\times f$, a width of $6.3\times10^{-5}$; letting the frames vary as well gives $1.2\times10^{-5}$ over the same count. This is the noiseless rate; \cref{sec:e6} is the corresponding statement under noise, where strict intersection fails and a consensus rule is needed.
+
+\paragraph{The condition of \cref{M-thm:identframe} is sharp.} Take the frame seen down a cube diagonal, whose three axes make equal angles with the optical axis, so that \cref{M-thm:identframe} predicts identifiability exactly when the edge-on plane of some axis enters the image. Sampling $30\,000$ noiseless corners at each field of view, with the corner's position as the only variable, the intersection of the admissible sets is given in \cref{tab:sharp}.
+
+\begin{table*}[t]
+\centering\small
+\caption{Width of the intersection of admissible sets for a frame seen down a cube diagonal, from $30\,000$ noiseless corners at each field of view}
+\label{tab:sharp}
+\begin{tabular}{lccccccc}
+\toprule
+field of view & $40^\circ$ & $46^\circ$ & $50^\circ$ & $54^\circ$ & $60^\circ$ & $73^\circ$ & $90^\circ$\\
+\midrule
+edge-on plane in view & no & no & no & no & yes & yes & yes\\
+width of $\bigcap F$, $/f$ & $7\times10^{3}$ & $1.39$ & $0.88$ & $0.55$ & $3.8\times10^{-3}$ & $7.3\times10^{-5}$ & $2.4\times10^{-5}$\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The transition falls between $54^\circ$ and $60^\circ$, which is where the edge-on plane first reaches the image's corners: a square image sees further off-axis at its corners than at its edges, so the threshold sits below the $70.53^\circ$ that a circular field would need. That the $54^\circ$ width is a genuine limit and not undersampling is checked by multiplying the sample a hundredfold: it reads $0.551$, $0.537$ and $0.543$ at $3000$, $30\,000$ and $300\,000$ corners, while at $60^\circ$ it keeps falling, through $0.152$, $0.0021$ and $0.0013$. These figures and those of \cref{tab:sharp} come from different random samples of corners; at a given number of corners the width is itself random (\cref{prop:rate}), and at $60^\circ$ and $30\,000$ corners the two samples differ by a factor of about two.
+
+
+\paragraph{Replicated widths for the cube diagonal.} \Cref{tab:Stransition} gives the median width of $\bigcap F$, in units of $f$, over $30$ replicates per size, for the frame seen down a cube diagonal on a square image of half-width $480$\,px, computed from the closed form of \cref{M-prop:gform} of the article. The slopes are least-squares fits over $3\times10^4$ to $3\times10^5$ junctions, with $95\%$ bootstrap intervals over replicates.
+
+\begin{table}[h]
+\centering\footnotesize
+\caption{Median width of $\bigcap F$ for the cube-diagonal frame, $30$ replicates per size}
+\label{tab:Stransition}
+\begin{tabular}{lccccccc}
+\toprule
+FOV & $10^3$ & $3\cdot10^3$ & $10^4$ & $3\cdot10^4$ & $10^5$ & $3\cdot10^5$ & slope\\
+\midrule
+$54^\circ$ & 0.61 & 0.61 & 0.57 & 0.55 & 0.55 & 0.54 & $-0.01$ $(-0.01,0.00)$\\
+$56^\circ$ & 0.45 & 0.43 & 0.29 & 0.099 & 0.025 & 0.012 & $-0.92$ $(-1.30,-0.64)$\\
+$58^\circ$ & 0.27 & 0.099 & 0.037 & 0.0095 & 0.0021 & 0.00093 & $-1.01$ $(-1.25,-0.79)$\\
+$60^\circ$ & 0.063 & 0.038 & 0.015 & 0.0043 & 0.0014 & 0.00052 & $-0.91$ $(-1.28,-0.57)$\\
+$65^\circ$ & 0.0070 & 0.0019 & 0.00040 & 0.00026 & 0.000055 & 0.000024 & $-1.03$ $(-1.28,-0.84)$\\
+$70^\circ$ & 0.0032 & 0.00086 & 0.00028 & 0.00013 & 0.000030 & 0.0000095 & $-1.13$ $(-1.34,-0.92)$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Worked examples of the convex program}\label{sec:Sprogram}
+
+For a camera with known principal point and zero skew, $\omega^{*}=\operatorname{diag}(X,Y,1)$ and positive-definiteness reduces to $X,Y>0$, so the cameras consistent with $M$ junctions form the feasible set of a linear program. Its extent in $X$ and in $Y$ is the value of a further linear program, so no grid is needed. With a true camera of $f_x=900$, $f_y=700$ and junctions from independent frames, $1000$ junctions pin $f_x$ to $[899.8,\,902.5]$ and $f_y$ to $[699.8,\,701.9]$.
+
+For the full camera, with skew and principal point free, positive-definiteness is a matrix inequality, which we impose with cutting planes: we solve the linear program and, whenever the solution is not positive-definite, add the cut $\mathbf v^{\top}\omega^{*}\mathbf v\ge0$, where $\mathbf v$ is the eigenvector belonging to the solution's most negative eigenvalue. This requires nothing beyond a linear-programming solver. With a true camera of $f_x=900$, $f_y=700$, skew $15$ and principal point $(40,-30)$, and $2000$ junctions from independent frames, every parameter is recovered to within about one pixel: $f_x\in[899.3,901.1]$, $f_y\in[699.5,700.9]$, skew $\in[14.86,15.20]$, $p_x\in[39.52,40.05]$ and $p_y\in[-30.24,-29.83]$. These junctions are noiseless. The linear programs are solved in a box of side $10^8$ about the origin, cuts are added until the smallest eigenvalue is nonnegative to relative tolerance $10^{-9}$, and each interval is the range of the parameter over the ten feasible cameras that extremize the entries of $\omega^{*}$. Since $f_x$, $f_y$ and the skew are not linear in $\omega^{*}$, these are inner estimates of the feasible ranges. From the junctions of a single frame, by \cref{M-prop:oneframe}, the same program cannot close on a general camera; \cref{sec:e4} applies a robust form of it to real junctions.
+
+\section{Real images: the York Urban Database}\label{sec:e4}
+For the York Urban camera, whose horizontal field of view is $51^\circ$ (diagonal $61^\circ$), two properties can be checked: that the bound holds, and that upper bounds are rare (\cref{M-prop:bound}(2)). Both hold, and the last implies that the junctions do not calibrate this camera.
+
+The York Urban Database \citep{denis2008}, a standard benchmark for vanishing-point estimation \citep{tardif2009}, supplies 102 images at $640\times480$ with ground-truth intrinsics ($f=674.92$\,px, principal point $(307.55,251.45)$) and hand-labeled line segments assigned to the three Manhattan directions. Junctions are formed by clustering segment endpoints and are kept only if the three fitted lines concur within 3\,px and every near endpoint lies within 12\,px of the junction. From 12\,122 segments, this procedure yields 3450 two-family junctions but only 181 full three-family junctions, 1.8 per image, in 59 of the 102 images; other extraction parameters give 161 to 181 (Sect.~S13). This scarcity matters more than anything else measured here.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig8_real_junctions.pdf}
+\caption{The bound on real images, York Urban Database. (a) The richest image, holding $13$ of the $181$ full junctions: hand-labeled segments colored by Manhattan direction (key at lower right), with the junctions circled, all of which admit the true focal length. (b) The admissible interval of each of the $181$ junctions, sorted by lower bound, against the true $f$ (black line). Dots are lower bounds, and $179$ intervals are unbounded above. The two red marks are the misses, a lower bound at $1.006f$ and an interval bounded above at $0.38f$; the only other upper bound is at $2.29f$}
+\label{fig:real}
+\end{figure*}
+
+\paragraph{Near-duplicate junctions.} Eight pairs of these junctions lie within $8$\,px of each other in the same image, with all three edge directions agreeing to within $3^\circ$: either one corner labeled twice, or parallel edges a few pixels apart, such as the inner and outer edges of a frame. They are kept in the counts below. Dropping one junction of each pair leaves $173$ junctions in the same $59$ images; the admissible set then contains the true focal length for $171$ of them ($98.8\%$), the certified sets of the article's \cref{M-prop:certified} for all of them, still only two junctions bound the focal length from above, and the median lower bound is $0.24f$ instead of $0.23f$. No conclusion of this section changes.
+
+\paragraph{Coverage and the sign test.} The admissible set contained the true $f$ for 179 of the 181 junctions, 98.9\% (Wilson 95\% interval 96.1 to 99.7\%), against 97 to 98\% in simulation (\cref{fig:real}); this is the sign test of \cref{M-sec:sign} under the true $K$, not independent evidence. As a detector, the camera-free test accepted all 181 genuine junctions and $35$ of the $39$ three-family endpoint clusters that failed validation. The median $\fmin/f$ is $0.24$ (quartiles $0.13$ and $0.43$), and the set was unbounded above for 98.9\% of junctions, against 66 to 90\% in simulation (\cref{M-sec:e2}).
+
+\paragraph{Certified intervals.} Bounding each edge's angle error by $\varphi_i=\arcsin(2\varepsilon/\ell_i)$, with $\ell_i$ the length of its own segment and $\varepsilon$ an assumed endpoint accuracy, \cref{M-prop:certified} gives a certified set for every junction. For $\varepsilon=0.25$\,px this set contains the true focal length for all $181$ junctions, including the two that the measured intervals miss; these are covered from $\varepsilon=0.10$ and $0.20$\,px, and the second has an edge only $15$\,px long. The guarantee costs little from below, lowering the median lower bound by $12\%$ at $\varepsilon=0.25$\,px and by $35\%$ at $1$\,px, but it removes both upper bounds. The vertices are estimated from the fitted lines rather than known exactly, as the proposition assumes, so this is a consistency check of the certified bounds on real data rather than a guarantee.
+
+\paragraph{Against vanishing points.} Classical calibration from three vanishing points, fitted by least squares to the labeled families with the principal point taken as their orthocenter, reaches a median error in $f$ of $2.1\%$ (75th percentile $6.9\%$) on $89$ of $97$ images, and $1.7\%$ on $56$ of the $59$ junction images; a RANSAC comparison of junction sampling with the line sampling of \citet{wildenauer2012} is in \cref{sec:Ssampling}. Junctions are useful where line families are not available, not where they are.
+
+\paragraph{The bounds do not calibrate this camera.} The 181 junctions come from one camera and can be pooled. In principle, the junctions of any two of these images determine the focal length and principal point (Sect.~S5), and those of all $59$ determine a general camera (\cref{M-thm:frames}). The vertical directions, however, lie within $18.6^\circ$ of their mean, so the conditions are nearly dependent (Sect.~S13), and we asked the junctions only for the focal length. Only two of the $181$ junctions bound it from above, one wrongly at $0.38f$ and the other at $2.29f$, while the lower bounds climb to $0.97f$ and $1.006f$. The strict intersection is therefore empty. Rules fixed in advance do no better: the depth-$(M-1)$ consensus, which tolerates one wrong interval, is $[1.006f,\,2.29f]$ and misses $f$, while the depth-$(M-2)$ consensus is $[0.97f,\infty)$, tight from below and uninformative from above, as noiseless simulations of level scenes predict (the largest of $181$ lower bounds has median $0.982f$). Combined by the log-plausibility of Sect.~S8, the junctions overestimate $f$ by $47$ to $67\%$.
+
+\paragraph{Why upper bounds are rare.} The camera's tilt alone does not explain it: tilting a simulated vertical as in York Urban, by a median of $3.2^\circ$, still leaves about $20\%$ of junctions bounded above at $60^\circ$, against $1.1\%$ here (Sect.~S13). The explanation is where the corners lie. Keeping each junction at its position but replacing its measured lines by the noiseless lines of the image's ground-truth frame bounds only four junctions from above, at $2.06f$, $2.43f$, $3.59f$ and $4.40f$. Likewise, the region of \cref{M-thm:boundmap} in which a junction bounds $f$ from above covers a median $9.4\%$ of these images but holds only $2.2\%$ of their junctions, even though in $22$ of the $59$ images it reaches into the image along the edge-on line of a tilted horizontal axis. Real corners avoid the neighborhoods of the edge-on lines. The failure to calibrate this camera is a matter of where the junctions lie, not of noise.
+
+% ======================================================================
+
+\subsection{Junction sampling against line sampling}
+
+Two RANSAC loops solve the same quadratic \eqref{eq:cfsolver}, one sampling a junction plus one parallel line and the other four lines from the labeled families. On the $59$ images where both return an estimate, their median errors in $f$ are $4.6\%$ and $3.5\%$, and line sampling, as in \citet{wildenauer2012}, wins on $41$ of them (two-sided sign test, $p=0.004$). Classical calibration from three vanishing points, with the principal point taken as their orthocenter, does better still: $2.1\%$ (75th percentile $6.9\%$) on $89$ of $97$ images, and $1.7\%$ on $56$ of the $59$ junction images. Junctions are useful where line families are not available, not where they are.
+
+\subsection{The log-plausibility estimator on York Urban}
+The log-plausibility \eqref{eq:pi}, with the spread \eqref{eq:sd} computed from each edge's own length, returns $1126$\,px with the true principal point and $995$\,px with the image center, $67\%$ and $47\%$ too large, with bootstrap intervals that reach the limit of the search range. A robust form of the convex program of \cref{M-sec:program}, in which every constraint gets a slack variable and the total violation is minimized (violations measured as cosines between interpretation planes), returns $677$\,px against a true $675$. That agreement is accidental: bootstrap resamples that include the image containing the junction with the wrong upper bound give a median of $677$\,px, and those that exclude it give $1164$\,px, $72\%$ too large. The single wrong upper bound was supplying the only pressure from above. For the general camera the same program returns $f_x$ and $f_y$ $25\%$ and $33\%$ too large.
+
+\subsection{Mirror resolution on York Urban}
+ Of the 387 pairs of junctions that share an image, the most consistent mirror hypothesis matched the ground-truth frame in 99.0\% of cases (Wilson 95\% interval 97.4 to 99.6\%), and the closed form of \cref{M-sec:closed} recovered the frame to a median per-axis error of $3.44^\circ$, with the true $K$.
+
+\subsection{The similarity law}
+
+Measured in units of $\rho$ rather than $f$, the interquartile spread of the lower bound narrows from a factor of $3.3$ to $2.2$; the median $\fmin/\rho$ is $1.12$, and $\fmin$ and $\rho$ correlate at $0.51$. \Cref{M-cor:similar} thus describes real junctions too, if less tightly, since their angles vary as well as their radius.
+
+\subsection{Limitations}\label{sec:proposals}\label{sec:missing}
+
+The regime named in \cref{M-sec:intro}, in which no direction carries enough long parallel lines to locate a vanishing point, is reached by none of the experiments here. The synthetic studies impose exact Manhattan geometry, and York Urban consists of hand-labeled urban scenes in which line families are, by construction, abundant. The experiments above show that the bounds survive real segments and that line families, where present, are the better route; it cannot establish the paper's claim about its own applicability.
+
+Further limitations bear on the results. The principal point is taken as known in the focal-length results. Non-right angles are treated by a sufficient condition and in simulation, and distortion by a guarantee for bounded distortion (Sect.~S6), but the York Urban segments were used as given. The real junctions come from hand-labeled segments, and the camera-free test rejects only $4$ of $39$ false junctions. There is one camera and one data set, and the estimator needs ten or more junctions under favorable orientations.
+
+The missing study is an indoor, cluttered, close-range data set with ground-truth intrinsics, on which to measure the junction yield, the share of images with no usable line family, and the accuracy of the bounds against a learned single-image calibrator. Its pipeline is short: segment detection, endpoint grouping as above, the camera-free test of \cref{M-sec:admissible}, and the consensus of Sect.~S8. A script implementing it is supplied; on rendered scenes of boxes, an idealized test, it found $3.8$ junctions per image, and the certified set contained the true focal length for all of them. We regard this study as the paper's principal outstanding obligation: the positioning of \cref{M-sec:intro} is the hypothesis for which the geometry was developed, not a conclusion that the experiments support. Two further studies require hardware: a corner-only front end for camera rigs, and sign cues from an inertial sensor (Sect.~S14).
+
+\section{Further experiments}\label{sec:Sexp}
+
+The protocol is that of \cref{M-sec:experiments} of the article.
+
+\subsection{The closed form}
+Over $1000$ corners per field of view at each noise level, at $\sigma=0$ the recovered edge directions agree with the truth to $3\times10^{-7}$ degrees. With noise the median angular error of the three directions is $0.56^\circ$, $1.1^\circ$ and $2.1^\circ$ at $\sigma=0.5$, $1$ and $2$\,px, with 90th percentiles of $2.4^\circ$, $4.5^\circ$ and $7.5^\circ$ and 95th percentiles of $4.2^\circ$, $7.0^\circ$ and $10.6^\circ$ (\cref{fig:closedsolver}a). The dependence on field of view is negligible: at $\sigma=0.5$\,px the medians are $0.54^\circ$, $0.60^\circ$ and $0.55^\circ$ at $40^\circ$, $60^\circ$ and $90^\circ$. The sign test rejects 2.7\%, 5.2\% and 8.3\% of true corners at the three noise levels, its false-reject rate at this edge length.
+
+\subsection{The corner-plus-line solver}\label{sec:e8}
+Over $3000$ corner pairs per noise level, at $\sigma=0$ the selected root reproduces $f$ to $10^{-15}$ relative error. The quadratic \eqref{eq:quadratic} had one positive root in 38\% of noiseless configurations and two in 62\%; among the two-root cases at $\sigma=0.5$\,px the sign test of \cref{M-sec:sign} at the second corner alone removed the spurious root in 34\%, and $E'$ was needed in the remaining 66\%. With noise the quadratic can also lose both roots, which happened in 8.1\%, 12.5\% and 16.0\% of pairs at $\sigma=0.5$, $1$ and $2$\,px; those pairs return no estimate and are excluded from the errors below, so in a RANSAC loop they are simply samples that fail.
+
+On the pairs that do return an estimate, the median relative error in $f$ is 3.9\%, 6.8\% and 13.5\% at the three noise levels, with 90th percentiles of 26\%, 43\% and 66\%. Three-vanishing-point calibration from two corners of a fully shared frame, on the same data and with the principal point fixed at the image center for both methods, gives medians of 3.9\%, 7.3\% and 11.8\% and 90th percentiles of 27\%, 39\% and 55\%. The solver is therefore level with the baseline in median at low noise and slightly behind it at $\sigma=2$\,px, which is the main result: it reaches the same accuracy from four lines that the baseline needs six to reach. Its tail is the weaker point, heavier than the baseline's at $\sigma=1$ and $2$\,px and driven by pairs whose vertical image lines are nearly parallel. Binning by the angle between the two vertical lines at $\sigma=0.5$\,px, the median error is 1.9\% above $15^\circ$, 3.3\% at $5^\circ$ to $15^\circ$, 6.7\% at $2^\circ$ to $5^\circ$ and 13\% below $2^\circ$ (\cref{fig:closedsolver}b and \cref{sec:conditioning}).
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig6_closedform_solver.pdf}
+\caption{(a) Edge-direction error against endpoint noise for one corner with $K$ known: median per field of view with bootstrap 95\% intervals, and the 90th percentile pooled over fields of view (1000 corners per field of view per noise level). (b) Relative focal-length error of the corner-plus-line solver and of three-vanishing-point calibration from two corners, median with bootstrap 95\% intervals (solid) and 90th percentile (dotted); the figures below the axis are the fraction of pairs for which the quadratic has no positive root and the solver returns nothing (3000 pairs per noise level).}
+\label{fig:closedsolver}
+\end{figure*}
+
+\subsection{Corners against a whole-box fit}\label{sec:e9}
+The question this paper opens with is where the corner methods stop being the right tool. A right-angled box with unknown edge-length ratios is imaged with unknown $f$ and known principal point, and its eight vertices are revealed in random order. At each count $V$ the corner estimate, the median over every corner-plus-line configuration available among the visible vertices, is compared against \textsc{box(ml)}, a maximum-likelihood fit of the box by nonlinear least squares over rotation, translation, two length ratios and $f$. \Cref{tab:box} gives the median relative error in $f$ over 400 boxes at $\sigma=0.5$\,px.
+
+\begin{table*}[t]
+\centering\small
+\caption{Median relative error in $f$ of the corner estimate and of a whole-box fit, by number of visible vertices, over 400 boxes at $\sigma=0.5$\,px}
+\label{tab:box}
+\begin{tabular}{lcccccc}
+\toprule
+visible vertices $V$ & 3 & 4 & 5 & 6 & 7 & 8\\
+\midrule
+corner (\cref{sec:Ssolver})              & 3.0\% & 2.3\% & 1.9\% & 1.8\% & 1.7\% & 1.4\%\\
+\textsc{box(ml)}, vertex positions only & ---   & ---   & 4.8\% & 2.6\% & 2.3\% & 1.8\%\\
+\textsc{box(ml)}, vertices and edges    & 1.5\% & 1.1\% & 1.0\% & 0.9\% & 0.8\% & 0.8\%\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The two \textsc{box(ml)} rows differ only in what the fit is allowed to see, and the difference decides the comparison. Given only the positions of the visible vertices, the box fit is underdetermined below $V=5$ and worse than the corner estimate until $V=8$; it is tempting to read that as the corner methods winning below a crossover. They do not. The corner estimate uses fitted edge \emph{directions}, which are measurements of pixels along the edges that a vertex-only fit never sees, so the two estimators are not being given the same evidence. Once the box fit is also given those edge segments, it is determined from $V=3$ and is better than the corner estimate at every count.
+
+The conclusion is therefore about applicability and not accuracy. If the scene really is one box, the vertices are in correspondence and the model is right, then fitting the box jointly is the better estimator, as it should be: it has strictly more structure to exploit. What the corner methods offer is that they need none of that. A junction needs no box, no vertex labelling, no correspondence across the scene and no assumption that the three edges meeting here belong to the same object as the three meeting elsewhere; one doorframe corner and one other vertical line are enough. That is the regime this paper is for, and it is defined by how little is assumed rather than by a vertex count.
+
+We also caution against reading \textsc{box(ml)} as a bound on what any estimator could do. Maximum likelihood is not optimal at finite sample sizes for a nonlinear model, so these rows record what two particular estimators achieve under their respective observation sets.
+
+
+\subsection{Re-projection through the junction}
+Three independently fitted lines do not meet exactly, whereas the derivation needs every interpretation plane to contain the ray, that is $\vn_i\cdot\vr=0$, which is the statement that every line passes through the corner. Each fitted line is therefore re-projected through the estimated junction, keeping its direction and replacing $e_i$ by $-(a_i\hat u+b_i\hat v)$, before \eqref{M-eq:lin} is applied; the observation is made consistent with the model rather than the model applied to an inconsistent observation. The step is small: the median distance from a fitted line to the estimated junction is $0.23$, $0.48$ and $0.91$\,px at $\sigma=0.5$, $1$ and $2$\,px, and omitting it changes the coverage figures of \cref{M-sec:e2} by at most $0.1$ of a point.
+
+\subsection{A junction whose vertex is not seen}\label{sec:occluded}
+Nothing in the derivation requires the corner itself to be seen. What it requires is that the three image lines be concurrent, and they are, at the projection of the vertex, whether or not that point appears in the image. A corner whose vertex is occluded, or lies outside the frame, can therefore be used by intersecting three edge segments seen away from it. The cost is the extrapolation lever arm. With segments of $150$\,px that start $0$, $150$ and $300$\,px from the unseen vertex, at $\sigma=0.5$\,px, the median error in the recovered vertex grows from $0.50$\,px to $1.12$\,px and $1.80$\,px. The admissible set nevertheless contains the true $f$ in $96$ to $98\%$ of cases throughout, against $97.5\%$ with the vertex visible. The first-order model of \cref{prop:noise} survives the extrapolation, though it conditions on the junction estimate. Over $300$ corners with $120$ perturbations each, its predicted miss probability was $3.6\%$, $2.9\%$ and $2.5\%$ at gaps of $0$, $150$ and $300$\,px against $2.9\%$, $2.3\%$ and $1.8\%$ measured, a stable ratio, between the unrounded rates, of $0.80$, $0.77$ and $0.74$. It therefore remains a conservative predictor, which is the safe direction for weighting junctions. This matters most in the regime of \cref{M-sec:intro}, where clutter occludes vertices more often than it hides edges; but an extrapolated junction is also the kind of near-concurrent triple that \cref{M-thm:interval}'s test cannot reject, so it leans harder on the concurrency checks of \cref{sec:e4}.
+
+\subsection{Junction sampling against line sampling}\label{sec:Ssampling}
+ The comparison proposed in Sect.~S14 is between two RANSAC loops that solve the \emph{same} quadratic, \eqref{eq:cfsolver} for $\omega^{*}=\operatorname{diag}(f^2,f^2,1)$, and score hypotheses identically. They differ only in whether the minimal sample is a junction plus one parallel line or four lines drawn from the labeled direction families. On the 59 images where both return an estimate, the line-sampled loop of \citet{wildenauer2012} has a median relative error in $f$ of 3.5\% against 4.6\% for the junction-sampled loop, with 75th percentiles of 5.1\% and 12.2\%, and the junction loop is the better of the two on only 18 of the 59 images. Changing the thresholds of the junction detector does not reverse this. We therefore record the hypothesis that junction sampling helps as not supported: the sign test does filter roots, but it does not compensate for the scarcity and noisiness of three-family junctions when whole labeled line families are available instead. Junctions are useful where those families are not available, not where they are.
+
+\subsection{Two-sided junctions and the field of view}
+Two findings from simulation bear on where this might work. First, with noise, on scenes with York Urban's edge lengths, the robust program is biased low, by $9\%$ and $19\%$ at $\sigma=0.5$ and $1$\,px. The likelihood errs by about $6\%$ and overestimates the noise, because the first-order model of \cref{prop:noise} understates the spread when edges are as short as $33$\,px. Second, the share of two-sided junctions grows with the field of view, from $12\%$ at $51^\circ$ to $19\%$ at $75^\circ$ and $30\%$ at $100^\circ$, the likelihood's median error at $\sigma=0.5$\,px falling from $3.7\%$ to $2.2\%$ and $2.0\%$. At $51^\circ$ that simulation has ten times as many two-sided junctions as the real images, and the reason is the camera's attitude: it tilted the camera by about $12^\circ$, and these images are nearly level.
+
+\subsection{Robustness of the single-junction bound}\label{sec:Srobust}
+The protocol of \cref{M-sec:experiments} of the article idealizes three things: orientations are uniform, edges are $150$\,px long, and the principal point is exact. \Cref{tab:Srobust} relaxes each, at $60^\circ$, $\sigma=0.5$\,px and $2000$ junctions per setting. Tilting the vertical as in York Urban, by angles drawn from that dataset's spread (median $3.2^\circ$) with uniform yaw, changes neither the coverage nor the share of junctions bounded above, so the camera's tilt alone does not explain why upper bounds are rare on the real images. Short edges cost coverage but not upper bounds, and an error in the principal point of up to $20$\,px costs almost nothing.
+
+\begin{table}[h]
+\centering\small
+\caption{The single-junction bound under the relaxations of the protocol}
+\label{tab:Srobust}
+\begin{tabular}{lccc}
+\toprule
+setting & coverage & bounded above & median $f_{\min}/f$\\
+\midrule
+orientations uniform & 97.3\% & 18.8\% & 0.33\\
+vertical tilted as in York Urban & 97.0\% & 20.3\% & 0.38\\
+edges of 20\,px & 88.7\% & 20.8\% & 0.33\\
+edges of 40\,px & 92.5\% & 18.1\% & 0.33\\
+edges of 80\,px & 95.1\% & 21.2\% & 0.36\\
+edges of 150\,px & 96.6\% & 18.6\% & 0.33\\
+principal point off by 5\,px & 97.0\% & 19.8\% & 0.34\\
+principal point off by 10\,px & 96.8\% & 18.3\% & 0.35\\
+principal point off by 20\,px & 96.7\% & 18.4\% & 0.33\\
+principal point off by 40\,px & 93.7\% & 19.3\% & 0.33\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Junction extraction on York Urban}\label{sec:Sextract}
+With the endpoint clustering radius at $10$\,px and a minimum segment length of $15$\,px, the settings of the article, $181$ full junctions are found in $59$ images; the admissible set contains the true focal length for $98.9\%$ of them, and the line-sampled loop has median error $3.5\%$ against $4.6\%$ for the junction-sampled one. At $20$\,px and $10$\,px there are again $181$ junctions, with coverage $95.5\%$ and medians $2.6\%$ against $4.7\%$; at $25$\,px and $10$\,px there are $161$ junctions in $56$ images, with coverage $95.6\%$ and medians $3.1\%$ against $4.4\%$. The comparison does not reverse. The $59$ vertical directions of the York Urban frames lie within $18.6^\circ$ of their mean, half of them within $3.5^\circ$, and the smallest singular value of the matrix they form is $1.1\%$ of the largest, so the conditions of Theorem (several frames) that they impose are nearly dependent.
+
+\part{Outlook}
+
+\section{Directions for further work}\label{sec:directions}
+Each direction below follows from \cref{M-sec:bound,sec:two} of the article and \cref{sec:Ssolver}; \cref{tab:proposals} states the lineage of each, because several have a direct ancestor.
+
+\begin{table*}[t]
+\centering\small
+\caption{Directions and their lineage.}
+\label{tab:proposals}
+\begin{tabularx}{\linewidth}{l >{\raggedright\arraybackslash}X l >{\raggedright\arraybackslash}X}
+\toprule
+& Direction & Builds on & Lineage \\
+\midrule
+\ref{sec:ransac} & Junction-sampled RANSAC, against the line-sampled loop of \citet{wildenauer2012} & \cref{sec:Ssolver} & \citet{wildenauer2012} \\
+\ref{sec:signcues} & Single-corner sign resolution from gravity or occlusion & \cref{M-sec:mirror1,sec:opacity} & gravity cue used by \citet{shakunaga1989} \\
+\ref{sec:rig} & Corner-only rotation front end for non-overlapping rigs & \cref{sec:multiview} & full-box version by \citet{wilczkowiak2005} \\
+\ref{sec:distortion} & Joint distortion or rolling-shutter estimation from edge straightness & \cref{M-sec:closed} & plumb-line calibration; new primitive \\
+\ref{sec:detector} & Junction detector that predicts the canonical angles and the sign condition & \cref{M-sec:sign} & none found \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{The solver in practice}\label{sec:ransac}
+\citet{wildenauer2012} already run a four-line minimal solver inside RANSAC on real images, sampling lines clustered by direction, so the open question is not whether a four-line sample is practical but whether sampling \emph{junctions} rather than lines helps. A junction supplies three lines at once with their incidence at a common point already established, and it carries the sign test of \cref{M-sec:sign}, which rejects a sample using only the corner's own geometry and the candidate $K$, before any other line is consulted. Against that, junction detection is harder than line detection, most junctions in a room are not right angles, which edge is vertical comes from a detector, and corner pairs must still be sampled with well-separated vertical lines (\cref{sec:conditioning}). \Cref{sec:e4} runs that experiment on the York Urban Database and settles it against the junction-sampled loop: on the images where both return an estimate it is the less accurate of the two, because full three-family junctions are scarce, about 1.8 per image, where labeled line families are not. The open question that remains is narrower: whether junction sampling helps in the regime it was meant for, namely images in which no direction has enough parallel lines to form a family at all. The York Urban images, which are hand-labeled with such families, do not represent that regime.
+
+\subsection{Resolving the sign from one corner}\label{sec:signcues}
+Three cues, in increasing cost. \emph{Gravity}: if one edge is known to be vertical, only one of the two mirror solutions has a vertical edge, since the reflection in the plane perpendicular to the ray tilts a vertical direction unless the ray is horizontal. \citet{shakunaga1989} already chose between candidates by assuming one direction parallel to the ground. \emph{Occlusion}: by \cref{sec:opacity} the barbs of an arrow are occluding edges under the convex reading and convex edges under the concave one, so T-junctions and texture discontinuity on the barbs decide. \emph{Learned}: a two-class convex/concave classifier on a small crop.
+
+\subsection{Corner-only rig calibration}\label{sec:rig}
+\citet{wilczkowiak2005} calibrate non-overlapping cameras with a box: a parallelepiped seen by different cameras at different times links their canonic projection matrices, and a factorization gives every camera's intrinsics, rotation and position; see also \citet{esquivel2007}. The corner-only version needs three lines of one junction per view instead of six matched vertices, which matters for rigs where a whole box is rarely in view, and gives rotation only. Translation needs a connected pair and a known edge length, at which point the full parallelepiped method is the better tool.
+
+\subsection{Distortion and rolling shutter}\label{sec:distortion}
+The three edges are straight in the scene, so any curvature in their images is attributable to lens distortion or rolling shutter. A single corner provides three curved segments from which a one-parameter radial model can be fitted jointly with the three directions, using sampled edge points rather than fitted lines as observations.
+
+\subsection{The sign condition as a differentiable penalty}\label{sec:difflearn}
+\Cref{M-prop:general} is differentiable in both the line parameters and $\omega^{*}$, so it can be attached to a learned junction detector as a penalty on predicted line orientations. The form to use is not the raw product, which scales as the sixth power of a length and is hopeless numerically, but its normalization
+\[
+\mathcal{L}_{\text{ortho}}=\max\Bigl(0,\ \textstyle\prod_{(i,j)}\widehat{\vn}_i\cdot\widehat{\vn}_j\Bigr),\qquad \widehat{\vn}_i=\vn_i/|\vn_i| ,
+\]
+a product of three cosines, bounded in $[-1,1]$, scale-free, and zero exactly on the admissible set. Whether this helps a detector is an empirical question we have not tested.
+
+\subsection{Predicting the constraint}\label{sec:detector}
+Current junction detectors output line segments, after which a separate step tests orthogonality. A detector could instead output, per junction, the three canonical-view angles and a probability that the junction is a right-angle corner. The sign condition \eqref{M-eq:sign} is a differentiable, label-free regularizer on the predicted angles given $K$, and the detector's confidence can be calibrated against the condition's margin. Synthetic box scenes supply training data.
+
+A last direction, constraining $f$ through regular texture on the faces by way of the face homography that the closed form of \cref{M-sec:closed} determines, has not been formulated here and is left open.
+
+% ======================================================================
+
+
+\subsection{Trihedra of known non-right angles}
+The restriction to right angles is not a convenience. With $\vd_i\propto k_i\vr+\vt_i$ and a prescribed scene cosine $c_{ij}$ between edges, the pairwise condition is
+\[
+\bigl(k_ik_j\|\vr\|^2+g_{ij}\bigr)^2=c_{ij}^2\bigl(k_i^2\|\vr\|^2+\|\vt_i\|^2\bigr)\bigl(k_j^2\|\vr\|^2+\|\vt_j\|^2\bigr).
+\]
+At $c_{ij}=0$ the right side vanishes and the condition is a perfect square, $(k_ik_j\|\vr\|^2+g_{ij})^2=0$, so that $k_ik_j=-g_{ij}/\|\vr\|^2$ depends on $g_{ij}$ alone; that decoupling is what produces the closed form and, through \eqref{M-eq:gfactor}, the linearity in $f^2$. At any other angle the normalizations $\|\vt_i\|^2$ survive, and since they depend on $f$ nonlinearly the structure is lost. A trihedral of known non-right angles still constrains $f$, but not in closed form, and we have not characterized its admissible set.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

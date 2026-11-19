@@ -1,0 +1,7 @@
+# Versions used for the numbers in the paper.
+# Other recent 3.x versions should work; printed numbers may differ in the last
+# digits across library versions.
+numpy>=2.4,<3
+scipy>=1.17,<2
+sympy>=1.14,<2
+matplotlib>=3.10,<4

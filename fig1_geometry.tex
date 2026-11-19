@@ -1,0 +1,59 @@
+% Figure 1: corner geometry.  Column width (about 78 mm).  Labels only.
+% The camera looks along an optical axis tilted 14 degrees upward; the image plane is perpendicular to that axis
+% and centered on it, and the junction c, where the viewing ray to the vertex P meets the image plane, lies off
+% center, in the upper part of the image, as in a photograph.
+\begin{tikzpicture}[scale=0.94,>=Stealth,font=\footnotesize]
+  \coordinate (O) at (0,0);
+  \coordinate (P) at (5.6,3.1);
+  \coordinate (D1) at ($(P)+(1.35,-0.45)$);
+  \coordinate (D2) at ($(P)+(0.20,1.30)$);
+  \coordinate (D3) at ($(P)+(-1.50,0.75)$);
+  \coordinate (c)  at ($(O)!0.45!(P)$);
+  \coordinate (pp) at (2.700,0.673);
+  % interpretation planes: each through O, the viewing ray and one edge
+  \fill[black!11] (O) -- (P) -- (D1) -- cycle;
+  \fill[black!11] (O) -- (P) -- (D2) -- cycle;
+  \fill[black!22] (O) -- (P) -- (D3) -- cycle;
+  \draw[black!45] (O) -- (D3);
+  % optical axis, behind the image plane
+  \draw[black!45,dash dot] (O) -- (pp);
+  % image plane: perpendicular to the optical axis and centered on it
+  \fill[white,opacity=0.6] (1.363,2.625) -- (3.263,1.827) -- (4.037,-1.279) -- (2.137,-0.481) -- cycle;
+  \draw[black!60] (1.363,2.625) -- (3.263,1.827) -- (4.037,-1.279) -- (2.137,-0.481) -- cycle;
+  \fill[black!55] (pp) circle (1.0pt);
+  \draw[black!45,dash dot] (pp) -- ($(O)!1.55!(pp)$);
+  % viewing ray
+  \draw[dashed] (O) -- (P);
+  \draw[->,thick] (O) -- ($(O)!0.20!(P)$);
+  % image lines through the junction: segments along the images of the edges, inside the image plane
+  \coordinate (e1) at ($(c)!0.60cm!($(O)!0.45!(D1)$)$);
+  \coordinate (e2) at ($(c)!0.55cm!($(O)!0.45!(D2)$)$);
+  \coordinate (e3) at ($(c)!0.60cm!($(O)!0.45!(D3)$)$);
+  \draw[thick] (c) -- (e1) (c) -- (e2) (c) -- (e3);
+  \fill (c) circle (1.3pt);
+  % the corner and its edges
+  \draw[->,thick] (P) -- (D1);
+  \draw[->,thick] (P) -- (D2);
+  \draw[->,thick] (P) -- (D3);
+  \fill (P) circle (1.5pt);
+  \fill (O) circle (1.5pt);
+  % normal of the interpretation plane of edge 3
+  \draw[->] ($(O)!0.72!(D3)$) -- ++(-0.26,0.58);
+  % t_3: the direction in Pi_3 perpendicular to the ray
+  \coordinate (Q) at ($(O)!0.78!(P)$);
+  \draw[->,thick,black!70] (Q) -- ($(Q)!0.75cm!90:(P)$);
+  \node[left=0pt] at ($(Q)!0.75cm!90:(P)$) {$\vt_3$};
+  % labels
+  \node[below left=-1pt] at (O) {$O$};
+  \node[above left=-2pt] at ($(O)!0.20!(P)$) {$\vr$};
+  \node[below=1pt] at (c) {$\vc$};
+  \node[right=1pt] at (P) {$P$};
+  \node[right] at (D1) {$\vd_1$};
+  \node[above] at (D2) {$\vd_2$};
+  \node[left] at (D3) {$\vd_3$};
+  \node[right=-1pt] at (e1) {$\vl_1$};
+  \node[right=-1pt] at (e2) {$\vl_2$};
+  \node[left=-1pt] at (e3) {$\vl_3$};
+  \node at (3.55,2.62) {$\Pi_3$};
+  \node[left=-1pt] at ($(O)!0.72!(D3)+(-0.26,0.58)$) {$\vn_3$};
+\end{tikzpicture}
